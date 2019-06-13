@@ -1,0 +1,101 @@
+.path-mod-personalschedule #personalscheduleform th {
+    font-weight: bold;
+    text-align: left;
+}
+
+.path-mod-personalschedule #personalscheduleform th.hresponse {
+    text-align: center;
+    width: 9%;
+}
+
+#page-mod-personalschedule-report .fullnamecell {
+    width: 10%;
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+#scheduling-table .personal-table-selected {
+    background: #0bf;
+    border: 2px solid #0008;
+}
+
+#scheduling-table {
+    width: 70%;
+    table-layout: fixed;
+    word-wrap: break-word;
+}
+
+#scheduling-table th {
+    border-right: 1px solid #888;
+    background-color: #f8f8ff;
+}
+
+#scheduling-table th:last-child {
+    border-right: none;
+    border-left: 3px solid #888;
+}
+
+#scheduling-table th:first-child {
+    border-right: 3px solid #888;
+}
+
+
+#scheduling-table td {
+    border-top: 1px solid #888;
+    border-right: 1px solid #888;
+}
+
+#scheduling-table thead tr:first-child {
+    border-bottom: 3px solid #888;
+}
+
+
+#scheduling-table tr:last-child {
+    border-bottom: 1px solid #888;
+}
+
+#scheduling-table tr td:first-child {
+    background-color: #f8f8ff;
+    border-right: 3px solid #888;
+}
+
+#scheduling-table tr td:last-child {
+    border-right: none;
+    border-left: 3px solid #888;
+}
+
+#scheduling-table .schedule-free {
+    background-color: #9f6a;
+}
+
+#scheduling-table .th-readiness {
+    width: 20%;
+}
+
+#scheduling-table .th-period {
+    width: 20%;
+}
+
+#scheduling-table .th-day {
+    width: 5%;
+}
+
+#scheduling-table .personal-table-btn-group .personal-table-btn-group-label {
+    font-size: 10px;
+}
+
+#personal-course-elements .element-status-viewed {
+    background-color: lawngreen;
+}
+
+#personal-course-elements .element-start-period-skipped {
+    font-weight: bold;
+}
+
+#personal-course-elements .element-status-viewed {
+    background-color: #9f93;
+}
+
+#personal-course-elements .element-period-skipped {
+    background-color: #ffd6cc80;
+}
