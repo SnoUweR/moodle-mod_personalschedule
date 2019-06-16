@@ -50,12 +50,18 @@ if (!$personalschedule = $DB->get_record("personalschedule", array("id" => $cm->
     print_error('invalidpersonalscheduleid', 'personalschedule');
 }
 
+
+
 $strpersonalschedulesaved = get_string('personalschedulesaved', 'personalschedule');
 
 $PAGE->set_title($strpersonalschedulesaved);
 $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($personalschedule->name);
+
+if (personalschedule_does_schedule_already_submitted($personalschedule->id, $USER->id)) {
+    echo html_writer::tag('p', get_string('save_willupdatenextday', 'personalschedule'));
+}
 
 personalschedule_save_answers($personalschedule, $formdata, $course, $context);
 

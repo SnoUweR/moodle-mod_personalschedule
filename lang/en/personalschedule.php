@@ -199,3 +199,5 @@ $string['notifynoactiveusers_title'] = 'Schedule Reminder';
 $string['notifynoactiveusers_message'] = 'Hello, %s.<br>
 We noticed that you have not visited the e-learning site for %d days.<br>
 If you encounter problems while going through any learning elements, you can send a notification to the administrator on the page with the schedule, or change the schedule as well.<br> ';
+
+$string['save_willupdatenextday'] = 'Already proposed learning elements will be updated on the next day.';

@@ -31,13 +31,14 @@ defined('MOODLE_INTERNAL') || die();
  * will create a new instance and return the id number
  * of the new instance or false if there was an error
  *
- * @param stdClass $personalschedule: An object from the form in mod_form.php
+ * @param stdClass $personalschedule : An object from the form in mod_form.php
  * @return int|bool The id of the newly inserted personalschedule record or false if there was an error
  */
-function personalschedule_add_instance($personalschedule) {
+function personalschedule_add_instance($personalschedule)
+{
     global $DB;
 
-    $personalschedule->timecreated  = time();
+    $personalschedule->timecreated = time();
     $personalschedule->timemodified = $personalschedule->timecreated;
 
     try {
@@ -61,22 +62,23 @@ function personalschedule_add_instance($personalschedule) {
  * (defined by the form in mod_form.php) this function
  * will update an existing instance with new data.
  *
- * @param stdClass $personalschedule: An object from the form in mod_form.php
+ * @param stdClass $personalschedule : An object from the form in mod_form.php
  * @return bool Returns false if there was an error, or true if update was successful
  */
-function personalschedule_update_instance($personalschedule) {
+function personalschedule_update_instance($personalschedule)
+{
     global $DB;
 
-    $personalschedule->id           = $personalschedule->instance;
+    $personalschedule->id = $personalschedule->instance;
     $personalschedule->timemodified = time();
 
-    personalschedule_set_cm_props($personalschedule, $DB);
+    personalschedule_set_cm_props($personalschedule);
 
     return $DB->update_record("personalschedule", $personalschedule);
 }
 
 /**
- * @param stdClass $formData: An object from the form in mod_form.php
+ * @param stdClass $formData : An object from the form in mod_form.php
  * @throws coding_exception
  * @throws dml_exception
  */
@@ -132,10 +134,10 @@ function personalschedule_set_cm_props($formData)
  * Tries to parse course module property ($propertyName) from $key, and if it
  * successfully parsed, then adds $item to $arrayWithProps and returns true.
  * If can't parse, then returns false.
- * @param array[][] $arrayWithProps: Array to add parsed property into.
- * @param string $propertyName: Property name, which should be parsed.
- * @param string $key: Current item key.
- * @param string $item: Current item value.
+ * @param array[][] $arrayWithProps : Array to add parsed property into.
+ * @param string $propertyName : Property name, which should be parsed.
+ * @param string $key : Current item key.
+ * @param string $item : Current item value.
  * @return bool True if parse success. False if not.
  */
 function personalschedule_try_parse_cm_prop(&$arrayWithProps, $propertyName, $key, $item)
@@ -160,13 +162,14 @@ function personalschedule_try_parse_cm_prop(&$arrayWithProps, $propertyName, $ke
  * this function will permanently delete the instance
  * and any data that depends on it.
  * Called automatically by Moodle.
- * @param int $personalscheduleId: Activity module instance id.
+ * @param int $personalscheduleId : Activity module instance id.
  * @return bool
  */
-function personalschedule_delete_instance($personalscheduleId) {
+function personalschedule_delete_instance($personalscheduleId)
+{
     global $DB;
 
-    if (!$personalschedule = $DB->get_record("personalschedule", array("id"=>$personalscheduleId))) {
+    if (!$personalschedule = $DB->get_record("personalschedule", array("id" => $personalscheduleId))) {
         return false;
     }
 
@@ -205,21 +208,22 @@ function personalschedule_delete_instance($personalscheduleId) {
         $result = false;
     }
 
-    if (!$DB->delete_records("personalschedule", array("id"=>$personalschedule->id))) {
+    if (!$DB->delete_records("personalschedule", array("id" => $personalschedule->id))) {
         $result = false;
     }
     return $result;
 }
 
 /**
- * @global stdClass
- * @global object
  * @param object $course
  * @param mixed $viewfullnames
  * @param int $timestamp
  * @return bool
+ * @global stdClass
+ * @global object
  */
-function personalschedule_print_recent_activity($course, $viewfullnames, $timestart) {
+function personalschedule_print_recent_activity($course, $viewfullnames, $timestart)
+{
     global $CFG, $DB, $OUTPUT;
 
     $modinfo = get_fast_modinfo($course);
@@ -268,9 +272,9 @@ function personalschedule_print_recent_activity($course, $viewfullnames, $timest
         return false;
     }
 
-    echo $OUTPUT->heading(get_string('newpersonalscheduleresponses', 'personalschedule').':', 3);
+    echo $OUTPUT->heading(get_string('newpersonalscheduleresponses', 'personalschedule') . ':', 3);
     foreach ($personalschedules as $personalschedule) {
-        $url = $CFG->wwwroot.'/mod/personalschedule/view.php?id='.$personalschedule->cmid;
+        $url = $CFG->wwwroot . '/mod/personalschedule/view.php?id=' . $personalschedule->cmid;
         print_recent_activity_note($personalschedule->time, $personalschedule, $personalschedule->name, $url,
             false, $viewfullnames);
     }
@@ -288,7 +292,8 @@ function personalschedule_print_recent_activity($course, $viewfullnames, $timest
  * specified user and personalschedule.
  * @throws dml_exception
  */
-function personalschedule_get_schedule_creation_modified_time($personalscheduleId, $userId) {
+function personalschedule_get_schedule_creation_modified_time($personalscheduleId, $userId)
+{
     global $DB;
     $result = $DB->get_record("personalschedule_usrattempts", array(
         'personalschedule' => $personalscheduleId,
@@ -304,19 +309,22 @@ function personalschedule_get_schedule_creation_modified_time($personalscheduleI
  * @param int $groupingid
  * @return array
  */
-function personalschedule_get_responses($personalscheduleid, $groupid, $groupingid) {
+function personalschedule_get_responses($personalscheduleid, $groupid, $groupingid)
+{
     global $DB;
 
-    $params = array('personalscheduleid'=>$personalscheduleid, 'groupid'=>$groupid, 'groupingid'=>$groupingid);
+    $params = array('personalscheduleid' => $personalscheduleid, 'groupid' => $groupid, 'groupingid' => $groupingid);
 
     if ($groupid) {
         $groupsjoin = "JOIN {groups_members} gm ON u.id = gm.userid AND gm.groupid = :groupid ";
 
-    } else if ($groupingid) {
-        $groupsjoin = "JOIN {groups_members} gm ON u.id = gm.userid
-                       JOIN {groupings_groups} gg ON gm.groupid = gg.groupid AND gg.groupingid = :groupingid ";
     } else {
-        $groupsjoin = "";
+        if ($groupingid) {
+            $groupsjoin = "JOIN {groups_members} gm ON u.id = gm.userid
+                       JOIN {groupings_groups} gg ON gm.groupid = gg.groupid AND gg.groupingid = :groupingid ";
+        } else {
+            $groupsjoin = "";
+        }
     }
 
     $userfields = user_picture::fields('u');
@@ -340,7 +348,8 @@ function personalschedule_get_responses($personalscheduleid, $groupid, $grouping
  * @param int $userId
  * @return string|bool False if there is no comment yet. If the comment exists, then returns it.
  */
-function personalschedule_get_analysis($personalscheduleId, $userId) {
+function personalschedule_get_analysis($personalscheduleId, $userId)
+{
     global $DB;
 
     try {
@@ -358,12 +367,13 @@ function personalschedule_get_analysis($personalscheduleId, $userId) {
 
 /**
  * Updates admin's comment for the specified user on the specified personalschedule module.
- * @param int $personalscheduleId: The module instance id
- * @param int $userId: The id property of the USER object
- * @param string $notes: New notes for the user
+ * @param int $personalscheduleId : The module instance id
+ * @param int $userId : The id property of the USER object
+ * @param string $notes : New notes for the user
  * @return bool True if okay; False if there was an error
  */
-function personalschedule_update_analysis($personalscheduleId, $userId, $notes) {
+function personalschedule_update_analysis($personalscheduleId, $userId, $notes)
+{
     global $DB;
 
     try {
@@ -378,12 +388,13 @@ function personalschedule_update_analysis($personalscheduleId, $userId, $notes) 
 
 /**
  * Sets admin's comment for the specified user on the specified personalschedule module.
- * @param int $personalscheduleId: The module instance id.
- * @param int $userId: The id property of the USER object.
- * @param string $notes: New notes for the user.
+ * @param int $personalscheduleId : The module instance id.
+ * @param int $userId : The id property of the USER object.
+ * @param string $notes : New notes for the user.
  * @return bool|int false if there was an error or record's id if okay.
  */
-function personalschedule_add_analysis($personalscheduleId, $userId, $notes) {
+function personalschedule_add_analysis($personalscheduleId, $userId, $notes)
+{
     global $DB;
 
     $record = new stdClass();
@@ -405,7 +416,8 @@ function personalschedule_add_analysis($personalscheduleId, $userId, $notes) {
  * @param int $groupingid Grouping id to filter users.
  * @return int Number of successfully filled schedules by users in the specified group.
  */
-function personalschedule_count_responses($personalscheduleid, $groupid, $groupingid) {
+function personalschedule_count_responses($personalscheduleid, $groupid, $groupingid)
+{
     if ($responses = personalschedule_get_responses($personalscheduleid, $groupid, $groupingid)) {
         return count($responses);
     } else {
@@ -415,23 +427,30 @@ function personalschedule_count_responses($personalscheduleid, $groupid, $groupi
 
 /**
  * Prints the basic info about users who have filled their own schedule.
- * @param int $cmid: Personalization Module instance Id. It is used for the link to the schedule report.
- * @param array $results: Array with users.
- * @param int $courseid: Course Id.
+ * @param int $cmid : Personalization Module instance Id. It is used for the link to the schedule report.
+ * @param array $results : Array with users.
+ * @param int $courseid : Course Id.
  */
-function personalschedule_print_all_responses($cmid, $results, $courseid) {
+function personalschedule_print_all_responses($cmid, $results, $courseid)
+{
     global $OUTPUT;
     $table = new html_table();
-    $table->head  = array ("", get_string("name"),  get_string("timecreated",  "personalschedule"),
-        get_string("timemodified", "personalschedule"));
-    $table->align = array ("", "left", "left");
-    $table->size = array (35, "", "" );
+    $table->head = array(
+        "",
+        get_string("name"),
+        get_string("timecreated", "personalschedule"),
+        get_string("timemodified", "personalschedule")
+    );
+    $table->align = array("", "left", "left");
+    $table->size = array(35, "", "");
 
     foreach ($results as $a) {
-        $table->data[] = array($OUTPUT->user_picture($a, array('courseid'=>$courseid)),
+        $table->data[] = array(
+            $OUTPUT->user_picture($a, array('courseid' => $courseid)),
             html_writer::link("report.php?action=student&student=$a->id&id=$cmid", fullname($a)),
             userdate($a->timecreated),
-            userdate($a->timemodified));
+            userdate($a->timemodified)
+        );
     }
 
     echo html_writer::table($table);
@@ -444,10 +463,11 @@ function personalschedule_print_all_responses($cmid, $results, $courseid) {
  *
  * @param object $mform form passed by reference.
  */
-function personalschedule_reset_course_form_definition(&$mform) {
+function personalschedule_reset_course_form_definition(&$mform)
+{
     $mform->addElement('header', 'personalscheduleheader', get_string('modulenameplural', 'personalschedule'));
-    $mform->addElement('checkbox', 'reset_personalschedule_answers', get_string('deleteallanswers','personalschedule'));
-    $mform->addElement('checkbox', 'reset_personalschedule_analysis', get_string('deleteanalysis','personalschedule'));
+    $mform->addElement('checkbox', 'reset_personalschedule_answers', get_string('deleteallanswers', 'personalschedule'));
+    $mform->addElement('checkbox', 'reset_personalschedule_analysis', get_string('deleteanalysis', 'personalschedule'));
     $mform->disabledIf('reset_personalschedule_analysis', 'reset_personalschedule_answers', 'checked');
 }
 
@@ -455,10 +475,11 @@ function personalschedule_reset_course_form_definition(&$mform) {
  * Course reset form defaults. Called automatically by Moodle.
  * @return array Array with default properties and their values.
  */
-function personalschedule_reset_course_form_defaults($course) {
+function personalschedule_reset_course_form_defaults($course)
+{
     return array(
-        'reset_personalschedule_answers'=>1,
-        'reset_personalschedule_analysis'=>1
+        'reset_personalschedule_answers' => 1,
+        'reset_personalschedule_analysis' => 1
     );
 }
 
@@ -472,7 +493,8 @@ function personalschedule_reset_course_form_defaults($course) {
  * @throws coding_exception
  * @throws dml_exception
  */
-function personalschedule_reset_userdata($data) {
+function personalschedule_reset_userdata($data)
+{
     global $DB;
 
     $componentstr = get_string('modulenameplural', 'personalschedule');
@@ -491,14 +513,22 @@ function personalschedule_reset_userdata($data) {
         $DB->delete_records_select('personalschedule_analysis', "personalschedule IN ($personalschedulessql)", $params);
         $DB->delete_records_select('personalschedule_user_props', "personalschedule IN ($personalschedulessql)", $params);
         $DB->delete_records_select('personalschedule_usrattempts', "personalschedule IN ($personalschedulessql)", $params);
-        $status[] = array('component'=>$componentstr, 'item'=>get_string('deleteallanswers',
-            'personalschedule'), 'error'=>false);
+        $status[] = array(
+            'component' => $componentstr,
+            'item' => get_string('deleteallanswers',
+                'personalschedule'),
+            'error' => false
+        );
     }
 
     if (!empty($data->reset_personalschedule_analysis)) {
         $DB->delete_records_select('personalschedule_analysis', "personalschedule IN ($personalschedulessql)", $params);
-        $status[] = array('component'=>$componentstr, 'item'=>get_string('deleteanalysis',
-            'personalschedule'), 'error'=>false);
+        $status[] = array(
+            'component' => $componentstr,
+            'item' => get_string('deleteanalysis',
+                'personalschedule'),
+            'error' => false
+        );
     }
     return $status;
 }
@@ -508,35 +538,47 @@ function personalschedule_reset_userdata($data) {
  * Called automatically by Moodle.
  * @return string[] Array with capabilities names.
  */
-function personalschedule_get_extra_capabilities() {
+function personalschedule_get_extra_capabilities()
+{
     return array('moodle/site:accessallgroups');
 }
 
 /**
  * Returns the features of this activity module.
  * Called automatically by Moodle.
- * @uses FEATURE_GROUPS
- * @uses FEATURE_GROUPINGS
+ * @param string $feature FEATURE_xx constant for requested feature
+ * @return mixed True if module supports feature, false if not, null if doesn't know
  * @uses FEATURE_MOD_INTRO
  * @uses FEATURE_COMPLETION_TRACKS_VIEWS
  * @uses FEATURE_GRADE_HAS_GRADE
  * @uses FEATURE_GRADE_OUTCOMES
- * @param string $feature FEATURE_xx constant for requested feature
- * @return mixed True if module supports feature, false if not, null if doesn't know
+ * @uses FEATURE_GROUPS
+ * @uses FEATURE_GROUPINGS
  */
-function personalschedule_supports($feature) {
-    switch($feature) {
-        case FEATURE_GROUPS:                  return true;
-        case FEATURE_GROUPINGS:               return true;
-        case FEATURE_MOD_INTRO:               return true;
-        case FEATURE_COMPLETION_TRACKS_VIEWS: return false;
-        case FEATURE_COMPLETION_HAS_RULES:    return true;
-        case FEATURE_GRADE_HAS_GRADE:         return false;
-        case FEATURE_GRADE_OUTCOMES:          return false;
-        case FEATURE_BACKUP_MOODLE2:          return false;
-        case FEATURE_SHOW_DESCRIPTION:        return true;
+function personalschedule_supports($feature)
+{
+    switch ($feature) {
+        case FEATURE_GROUPS:
+            return true;
+        case FEATURE_GROUPINGS:
+            return true;
+        case FEATURE_MOD_INTRO:
+            return true;
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return false;
+        case FEATURE_COMPLETION_HAS_RULES:
+            return true;
+        case FEATURE_GRADE_HAS_GRADE:
+            return false;
+        case FEATURE_GRADE_OUTCOMES:
+            return false;
+        case FEATURE_BACKUP_MOODLE2:
+            return false;
+        case FEATURE_SHOW_DESCRIPTION:
+            return true;
 
-        default: return null;
+        default:
+            return null;
     }
 }
 
@@ -547,17 +589,18 @@ function personalschedule_supports($feature) {
  * @param navigation_node $settings
  * @param navigation_node $personalschedulenode
  */
-function personalschedule_extend_settings_navigation($settings, $personalschedulenode) {
+function personalschedule_extend_settings_navigation($settings, $personalschedulenode)
+{
     global $PAGE;
 
     if (has_capability('mod/personalschedule:readresponses', $PAGE->cm->context)) {
         $responsesnode = $personalschedulenode->add(get_string("responsereports", "personalschedule"));
 
-        $url = new moodle_url('/mod/personalschedule/report.php', array('id' => $PAGE->cm->id, 'action'=>'students'));
+        $url = new moodle_url('/mod/personalschedule/report.php', array('id' => $PAGE->cm->id, 'action' => 'students'));
         $responsesnode->add(get_string('participants'), $url);
 
         if (has_capability('mod/personalschedule:download', $PAGE->cm->context)) {
-            $url = new moodle_url('/mod/personalschedule/report.php', array('id' => $PAGE->cm->id, 'action'=>'download'));
+            $url = new moodle_url('/mod/personalschedule/report.php', array('id' => $PAGE->cm->id, 'action' => 'download'));
             $personalschedulenode->add(get_string('downloadresults', 'personalschedule'), $url);
         }
     }
@@ -570,10 +613,11 @@ function personalschedule_extend_settings_navigation($settings, $personalschedul
  * @param stdClass $course Course object.
  * @param stdClass $cm Course module object.
  * @param stdClass $context Context object.
- * @param string $viewed  Which page viewed.
+ * @param string $viewed Which page viewed.
  * @since Moodle 3.0
  */
-function personalschedule_view($personalschedule, $course, $cm, $context, $viewed) {
+function personalschedule_view($personalschedule, $course, $cm, $context, $viewed)
+{
 
     // Trigger course_module_viewed event.
     $params = array(
@@ -598,12 +642,14 @@ function personalschedule_view($personalschedule, $course, $cm, $context, $viewe
 /**
  * Save the user's answers (schedule and age) for the given personalschedule
  *
- * @param stdClass $personalschedule a personalschedule object
- * @param array $answersrawdata the answers to be saved
- * @param stdClass $course a course object (required for trigger the submitted event)
- * @param stdClass $context a context object (required for trigger the submitted event)
- * @return bool True if data was sucessfully added. False if there is something wrong with the data validation.
- * @since Moodle 3.0
+ * @param stdClass $personalschedule a personalschedule object.
+ * @param array $answersrawdata the answers to be saved.
+ * @param stdClass $course a course object (required for trigger the submitted event).
+ * @param stdClass $context a context object (required for trigger the submitted event).
+ * @return bool True if data was successfully added. False if there is something wrong with the data validation.
+ * @throws coding_exception
+ * @throws dml_exception
+ * @throws moodle_exception
  */
 function personalschedule_save_answers($personalschedule, $answersrawdata, $course, $context) {
     global $DB, $USER;
@@ -615,7 +661,9 @@ function personalschedule_save_answers($personalschedule, $answersrawdata, $cour
     $atLeastOneFree = false;
 
     foreach ($answersrawdata as $key => $val) {
-        if ($key == "userid" && $key == "id") continue;
+        if ($key == "userid" && $key == "id") {
+            continue;
+        }
 
         if ($key == "age") {
             $age = (int)$val;
@@ -627,7 +675,7 @@ function personalschedule_save_answers($personalschedule, $answersrawdata, $cour
                     'other' => array(
                         'personalscheduleid' => $personalschedule->id,
                         'age' => $age,
-                        ),
+                    ),
                 );
                 $event = mod_personalschedule\event\schedule_wrong_age_submitted::create($params);
                 $event->trigger();
@@ -717,7 +765,6 @@ function personalschedule_save_answers($personalschedule, $answersrawdata, $cour
 
             $scheduleInserts[] = $newdata;
         }
-
     }
 
     // Again, it's easier to just delete old records and insert the new data.
@@ -734,8 +781,9 @@ function personalschedule_save_answers($personalschedule, $answersrawdata, $cour
     if ($alreadyExistedElement = $DB->get_record("personalschedule_usrattempts", $sqlFindConditions, "id")) {
         $usrAttemptObject->id = $alreadyExistedElement->id;
         $DB->update_record("personalschedule_usrattempts", $usrAttemptObject);
+
     } else {
-        $usrAttemptObject->timecreated =  $usrAttemptObject->timemodified;
+        $usrAttemptObject->timecreated = $usrAttemptObject->timemodified;
         $DB->insert_record("personalschedule_usrattempts", $usrAttemptObject);
     }
 
@@ -766,7 +814,8 @@ function personalschedule_save_answers($personalschedule, $answersrawdata, $cour
  * @param bool $type Type of comparison (or/and).
  * @return bool True if completed, false if not.
  */
-function personalschedule_get_completion_state($course, $cm, $userid, $type) {
+function personalschedule_get_completion_state($course, $cm, $userid, $type)
+{
     return personalschedule_does_schedule_already_submitted($cm->instance, $userid);
 }
 
@@ -777,7 +826,8 @@ function personalschedule_get_completion_state($course, $cm, $userid, $type) {
  * @return cm_info[]|false mod_personalschedule instances from the course. false if there aren't instances.
  * @throws moodle_exception
  */
-function personalschedule_get_personalschedule_cms_by_course_id($courseId) {
+function personalschedule_get_personalschedule_cms_by_course_id($courseId)
+{
     $modinfo = get_fast_modinfo($courseId);
 
     $foundCms = $modinfo->get_instances_of(mod_personalschedule_config::personalscheduleModname);
@@ -800,8 +850,15 @@ function personalschedule_get_personalschedule_cms_by_course_id($courseId) {
  * @return int|bool The integer ID of the new message or false if there was a problem with submitted data.
  * @throws coding_exception
  */
-function personalschedule_send_notification_message($name, $courseId, $receiverUserId, $subject, $fullHtmlMessage,
-    $contextUrl = '', $contextUrlName = '') {
+function personalschedule_send_notification_message(
+    $name,
+    $courseId,
+    $receiverUserId,
+    $subject,
+    $fullHtmlMessage,
+    $contextUrl = '',
+    $contextUrlName = ''
+) {
 
     $supportuser = core_user::get_support_user();
 
@@ -828,7 +885,8 @@ function personalschedule_send_notification_message($name, $courseId, $receiverU
  * @param int $userId User ID.
  * @return bool True if completed, false if not.
  */
-function personalschedule_does_schedule_already_submitted($personalscheduleId, $userId) {
+function personalschedule_does_schedule_already_submitted($personalscheduleId, $userId)
+{
     global $DB;
 
     $params = array('userid' => $userId, 'personalschedule' => $personalscheduleId);
@@ -849,7 +907,8 @@ function personalschedule_does_schedule_already_submitted($personalscheduleId, $
  * @param int $userId User ID.
  * @return mod_personalschedule\items\schedule Schedule object, even if user didn't set schedule yet.
  */
-function personalschedule_get_user_schedule($personalscheduleId, $userId) {
+function personalschedule_get_user_schedule($personalscheduleId, $userId)
+{
     global $DB;
     $conditions = array(
         "personalschedule" => $personalscheduleId,
@@ -872,7 +931,7 @@ function personalschedule_get_user_schedule($personalscheduleId, $userId) {
     try {
         $readinessRecords = $DB->get_records("personalschedule_readiness", $conditions);
     } catch (dml_exception $e) {
-         return $schedule;
+        return $schedule;
     }
     foreach ($readinessRecords as $readinessRecord) {
         $schedule->add_readiness_status($readinessRecord->period_idx, $readinessRecord->check_status);
@@ -884,11 +943,12 @@ function personalschedule_get_user_schedule($personalscheduleId, $userId) {
 /**
  * Returns filtered course activities. If the activity has ignored modName,
  * then it will be skipped.
- * @param stdClass $course: The course instance object.
+ * @param stdClass $course : The course instance object.
  * @return cm_info[] Array with filtered course activities.
  * @throws moodle_exception
  */
-function personalschedule_get_course_activities($course) {
+function personalschedule_get_course_activities($course)
+{
     $filteredCourseModules = array();
     $courseModules = get_fast_modinfo($course)->get_cms();
 
@@ -909,11 +969,12 @@ function personalschedule_get_course_activities($course) {
  * duration; category; weight; is_ignored.
  * @throws dml_exception
  */
-function personalschedule_get_course_modules_props($personalscheduleId) {
+function personalschedule_get_course_modules_props($personalscheduleId)
+{
     global $DB;
     return $DB->get_records("personalschedule_cm_props", array("personalschedule" => $personalscheduleId), '',
         'cm, duration, category, weight, is_ignored');
-   // return $DB->get_records_list("personalschedule_cm_props", "personalschedule", array($personalscheduleId));
+    // return $DB->get_records_list("personalschedule_cm_props", "personalschedule", array($personalscheduleId));
 }
 
 /**
@@ -921,7 +982,8 @@ function personalschedule_get_course_modules_props($personalscheduleId) {
  * @return int Course total duration in seconds.
  * @throws dml_exception
  */
-function personalschedule_get_course_total_duration_in_seconds($personalscheduleId) {
+function personalschedule_get_course_total_duration_in_seconds($personalscheduleId)
+{
     global $DB;
     $answer = $DB->get_record("personalschedule_cm_props", array("personalschedule" => $personalscheduleId),
         "SUM(duration) as total_duration");
@@ -933,8 +995,8 @@ function personalschedule_get_course_total_duration_in_seconds($personalschedule
  * Returns saved user's age for the specified userId in the specified personalschedule module.
  * If the user don't have a saved age (for example, it's a first time when he opened the module page),
  * this function returns the minimum possible value for age.
- * @param int $personalscheduleId: activity instance
- * @param int $userId: user, which age is need to know
+ * @param int $personalscheduleId : activity instance
+ * @param int $userId : user, which age is need to know
  * @return int saved age value or the minimum possible value (if user don't have a saved age yet)
  */
 function personalschedule_get_user_age($personalscheduleId, $userId)
@@ -956,13 +1018,18 @@ function personalschedule_get_user_age($personalscheduleId, $userId)
  * @param int $checkStatus Schedule period free status (sleep, busy, free, but as integer value).
  * @return string CSS class name for table cell with this status.
  */
-function personalschedule_get_schedule_table_schedule_cell_class($checkStatus) {
+function personalschedule_get_schedule_table_schedule_cell_class($checkStatus)
+{
     if ($checkStatus == mod_personalschedule_config::statusSleep) {
         return "schedule-status schedule-sleep";
-    } else if ($checkStatus == mod_personalschedule_config::statusBusy) {
-        return "schedule-status schedule-busy";
-    } else if ($checkStatus == mod_personalschedule_config::statusFree) {
-        return "schedule-status schedule-free";
+    } else {
+        if ($checkStatus == mod_personalschedule_config::statusBusy) {
+            return "schedule-status schedule-busy";
+        } else {
+            if ($checkStatus == mod_personalschedule_config::statusFree) {
+                return "schedule-status schedule-free";
+            }
+        }
     }
 
     return "";
@@ -1002,7 +1069,7 @@ function personalschedule_print_schedule_table(
             $cellClass = personalschedule_get_schedule_table_schedule_cell_class($check_status);
             $hiddenInputName = mod_personalschedule_config::prefixHiddenInput . mod_personalschedule_config::separatorHiddenInput .
                 $periodIdx . mod_personalschedule_config::separatorHiddenInput . $dayIdx;
-            echo '<td class="schedule-selectable ' .$cellClass. '"><span>' . $check_status .
+            echo '<td class="schedule-selectable ' . $cellClass . '"><span>' . $check_status .
                 '</span><input type="hidden" autocomplete="off" name="' . $hiddenInputName .
                 '" value="' . $check_status . '" /></td>';
         }
