@@ -85,6 +85,13 @@ $capabilities = array(
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array()
     ),
+
+    // Receive a reminder when user hasn't visited Moodle for a long time.
+    'mod/personalschedule:longofflinereminder' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array()
+    ),
 );
 
 

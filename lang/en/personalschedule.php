@@ -189,3 +189,13 @@ $string['validation_readinesssetting'] = 'Readiness setting';
 $string['validation_sleep'] = 'Sleep';
 $string['validation_busy'] = 'Busy';
 $string['validation_free'] = 'Free';
+
+$string['sendnotifytoadmin'] = 'Send notify to admin';
+$string['sendnotifytoadmin_help'] = 'The course administrator will receive a notification that you have encountered some problems during the learning of the proposed elements. Thus, he may try to help you.';
+
+$string['notifynoactiveusers'] = 'Checks for users, which have not been on the site for a long time, and which have schedule. Sends message to these users.';
+
+$string['notifynoactiveusers_title'] = 'Schedule Reminder';
+$string['notifynoactiveusers_message'] = 'Hello, %s.<br>
+We noticed that you have not visited the e-learning site for %d days.<br>
+If you encounter problems while going through any learning elements, you can send a notification to the administrator on the page with the schedule, or change the schedule as well.<br> ';

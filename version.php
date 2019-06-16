@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information
+ * Version information.
  *
  * @package    mod_personalschedule
  * @copyright  2019 onwards Vladislav Kovalev  snouwer@gmail.com
@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2019060904; // The current module version (Date: YYYYMMDDXX)
+$plugin->version   = 2019061602; // The current module version (Date: YYYYMMDDXX)
 $plugin->requires  = 2017051500; // This is the release version for Moodle 3.3+
 $plugin->component = 'mod_personalschedule'; // Full name of the plugin (used for diagnostics)
 $plugin->cron      = 0;

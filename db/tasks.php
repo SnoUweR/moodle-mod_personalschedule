@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,22 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Message providers information.
  *
  * @package    mod_personalschedule
  * @copyright  2019 onwards Vladislav Kovalev snouwer@gmail.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-$messageproviders = array (
-    'coursemodulecreated' => array (
-        'capability'  => 'mod/personalschedule:emailcoursemodulecreated'
-    ),
-    'usersentnotificationtoadmin' => array (
-        'capability'  => 'mod/personalschedule:emailusersentnotificationtoadmin'
-    ),
-    'longofflinereminder' => array (
-        'capability'  => 'mod/personalschedule:longofflinereminder'
-    ),
-);
+$tasks = [
+    [
+        'classname' => 'mod_personalschedule\task\notify_nonactive_users',
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => '0',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+    ],
+];

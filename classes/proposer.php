@@ -157,6 +157,11 @@ class mod_personalschedule_proposer {
         foreach ($uncompletedActivities as $activity) {
 
             // Gets properties of the activity.
+
+            if (!key_exists($activity->id, $cmProps)) {
+                continue;
+            }
+
             $props = $cmProps[$activity->id];
 
             // We should ignore activities with "IS IGNORED" property, or if there are no properties at all.

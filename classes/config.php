@@ -66,4 +66,6 @@ abstract class mod_personalschedule_config {
 
     const skipCategoriesWithoutPractice = false;
     const skipCompletedCategories = true;
+
+    const daysToSendScheduleNotify = 2;
 }

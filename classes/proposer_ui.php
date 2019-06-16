@@ -223,7 +223,7 @@ class mod_personalschedule_proposer_ui {
             $url = new moodle_url(
                 "$CFG->wwwroot/mod/personalschedule/admin_notify.php", array('id' => $personalscheduleCm->id));
             $button = $OUTPUT->single_button($url,
-                get_string('sendnotifytoadmin', 'block_personal_items'), "get");
+                get_string('sendnotifytoadmin', 'personalschedule'), "get");
             $resultHtml .= $button;
         }
 
