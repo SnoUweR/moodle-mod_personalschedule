@@ -34,42 +34,42 @@ class mod_personalschedule_proposer_simple_testcase extends basic_testcase {
 
     public function test_is_proposed_element_skipped_by_time() {
 
-        $hourSeconds = (60 * 0) + (60 * 60 * 1);
+        $hourseconds = (60 * 0) + (60 * 60 * 1);
 
-        $elementPeriodIdxBegin = 12;
-        $elementDayBeginDayIdx = 1;
+        $elementperiodidxbegin = 12;
+        $elementdaybegindayidx = 1;
 
-        $proposedElement = new mod_personalschedule\items\proposed_activity_object(
-            null, $hourSeconds, $elementPeriodIdxBegin, 0, $elementDayBeginDayIdx,
+        $proposedelement = new mod_personalschedule\items\proposed_activity_object(
+            null, $hourseconds, $elementperiodidxbegin, 0, $elementdaybegindayidx,
             1, 1);
 
 
-        $isSkipped = mod_personalschedule_proposer_ui::is_proposed_element_skipped_by_time(
-            $proposedElement, $elementDayBeginDayIdx, $elementPeriodIdxBegin + 2);
+        $isskipped = mod_personalschedule_proposer_ui::is_proposed_element_skipped_by_time(
+            $proposedelement, $elementdaybegindayidx, $elementperiodidxbegin + 2);
 
-        $this->assertEquals(true, $isSkipped);
+        $this->assertEquals(true, $isskipped);
     }
 
     public function test_get_duration_components() {
         // 1 minute.
-        $totalSeconds = (60 * 1) + // Minutes.
+        $totalseconds = (60 * 1) + // Minutes.
             (60 * 60 * 0) + // Hours.
             (24 * 60 * 60 * 0); // Days.
 
         mod_personalschedule_proposer_ui::get_duration_components(
-            $totalSeconds, $days, $hours, $minutes, $seconds);
+            $totalseconds, $days, $hours, $minutes, $seconds);
 
         $this->assertEquals(1, $minutes);
         $this->assertEquals(0, $hours);
         $this->assertEquals(0, $days);
 
         // 1 hour.
-        $totalSeconds = (60 * 0) + // Minutes.
+        $totalseconds = (60 * 0) + // Minutes.
             (60 * 60 * 1) + // Hours.
             (24 * 60 * 60 * 0); // Days.
 
         mod_personalschedule_proposer_ui::get_duration_components(
-            $totalSeconds, $days, $hours, $minutes, $seconds);
+            $totalseconds, $days, $hours, $minutes, $seconds);
 
         $this->assertEquals(0, $minutes);
         $this->assertEquals(1, $hours);
@@ -200,8 +200,8 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
         $this->assertInstanceOf('tool_log\log\writer', $store);
         $this->assertTrue($store->is_logging());
 
-        $userViewsInfo = mod_personalschedule_proposer::get_user_views_info($this->student->id, $this->course->id);
-        $this->assertCount(0, $userViewsInfo);
+        $userviewsinfo = mod_personalschedule_proposer::get_user_views_info($this->student->id, $this->course->id);
+        $this->assertCount(0, userviewsInfo);
 
         // Create a quiz with one attempt finished.
         list($quiz, $context, $quizobj, $attempt, $attemptobj) = $this->create_quiz_with_questions(true, true);
@@ -212,11 +212,11 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
         $quba = question_engine::make_questions_usage_by_activity('mod_quiz', $quizobj->get_context());
         $quba->set_preferred_behaviour($quizobj->get_quiz()->preferredbehaviour);
 
-        $userViewsInfo = mod_personalschedule_proposer::get_user_views_info($this->student->id, $this->course->id);
-        $this->assertCount(1, $userViewsInfo);
-        $this->assertArrayHasKey($quiz->cmid, $userViewsInfo);
-        $this->assertEquals(1, $userViewsInfo[$quiz->cmid]->attempts);
-        $this->assertEquals(1, $userViewsInfo[$quiz->cmid]->actions);
+        $userviewsinfo = mod_personalschedule_proposer::get_user_views_info($this->student->id, $this->course->id);
+        $this->assertCount(1, $userviewsinfo);
+        $this->assertArrayHasKey($quiz->cmid, $userviewsinfo);
+        $this->assertEquals(1, $userviewsinfo[$quiz->cmid]->attempts);
+        $this->assertEquals(1, $userviewsinfo[$quiz->cmid]->actions);
 
         quiz_start_new_attempt($quizobj, $quba, $attempt, 1, $timenow);
         quiz_attempt_save_started($quizobj, $quba, $attempt);
@@ -245,11 +245,11 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
         $event = \mod_resource\event\course_module_viewed::create($params);
         $event->trigger();
 
-        $userViewsInfo = mod_personalschedule_proposer::get_user_views_info($this->student->id, $this->course->id);
-        $this->assertCount(2, $userViewsInfo);
-        $this->assertArrayHasKey($resource->cmid, $userViewsInfo);
-        $this->assertEquals(0, $userViewsInfo[$resource->cmid]->attempts);
-        $this->assertEquals(1, $userViewsInfo[$resource->cmid]->actions);
+        $userviewsinfo = mod_personalschedule_proposer::get_user_views_info($this->student->id, $this->course->id);
+        $this->assertCount(2, $userviewsinfo);
+        $this->assertArrayHasKey($resource->cmid, $userviewsinfo);
+        $this->assertEquals(0, $userviewsinfo[$resource->cmid]->attempts);
+        $this->assertEquals(1, $userviewsinfo[$resource->cmid]->actions);
 
         $this->assertCount(2, $result['attempts']);
         return;
@@ -269,11 +269,11 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
         /** @var mod_workshop_generator $workshopgenerator */
         $workshopgenerator = $this->getDataGenerator()->get_plugin_generator('mod_workshop');
 
-        $localId = 0;
-        $userViewInfo = mod_personalschedule_proposer::get_mod_workshop_user_view_info(
-            $user1->id, $course->id, $workshop->id, 0, $localId++);
+        $localid = 0;
+        $userviewinfo = mod_personalschedule_proposer::get_mod_workshop_user_view_info(
+            $user1->id, $course->id, $workshop->id, 0, $localid++);
 
-        $this->assertEquals(0, $userViewInfo->attempts);
+        $this->assertEquals(0, $userviewinfo->attempts);
 
         $submissionid2 = $workshopgenerator->create_submission($workshop->id, $user1->id);
         $assessmentid2 = $workshopgenerator->create_assessment($submissionid2, $user1->id);
@@ -282,8 +282,8 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
 
         workshop_update_grades($workshop);
 
-        $userViewInfo = mod_personalschedule_proposer::get_mod_workshop_user_view_info(
-            $user1->id, $course->id, $workshop->id, 0, $localId++);
+        $userviewinfo = mod_personalschedule_proposer::get_mod_workshop_user_view_info(
+            $user1->id, $course->id, $workshop->id, 0, $localid++);
 
         $submissionid1 = $workshopgenerator->create_submission($workshop->id, $user1->id);
         $assessmentid1 = $workshopgenerator->create_assessment($submissionid1, $user1->id, array(
@@ -292,10 +292,10 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
         ));
 
         workshop_update_grades($workshop);
-        $userViewInfo = mod_personalschedule_proposer::get_mod_workshop_user_view_info(
-            $user1->id, $course->id, $workshop->id, 0, $localId++);
+        $userviewinfo = mod_personalschedule_proposer::get_mod_workshop_user_view_info(
+            $user1->id, $course->id, $workshop->id, 0, $localid++);
 
-        $this->assertEquals(1, $userViewInfo->attempts);
+        $this->assertEquals(1, $userviewinfo->attempts);
 
         return;
         $assessments = $DB->get_records('workshop_assessments');

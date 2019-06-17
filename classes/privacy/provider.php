@@ -170,7 +170,7 @@ class provider implements
         $params = ['modname' => 'personalschedule', 'contextlevel' => CONTEXT_MODULE, 'userid' => $user->id] + $contextparams;
         $schedule = $DB->get_recordset_sql($schedulesql, $params);
 
-        $readinessSql = "SELECT cm.id AS cmid,
+        $readinesssql = "SELECT cm.id AS cmid,
                        qa.*
                   FROM {context} c
             INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
@@ -181,9 +181,9 @@ class provider implements
                        AND qa.userid = :userid
               ORDER BY cm.id, qa.period_idx ASC";
 
-        $readinessRecords = $DB->get_recordset_sql($readinessSql, $params);
+        $readinessrecords = $DB->get_recordset_sql($readinesssql, $params);
 
-        $usrAttemptsSql = "SELECT cm.id AS cmid,
+        $usrattemptssql = "SELECT cm.id AS cmid,
                        qa.*
                   FROM {context} c
             INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
@@ -194,9 +194,9 @@ class provider implements
                        AND qa.userid = :userid
               ORDER BY cm.id ASC";
 
-        $usrAttempts = $DB->get_recordset_sql($usrAttemptsSql, $params);
+        $usrattempts = $DB->get_recordset_sql($usrattemptssql, $params);
 
-        $userPropsSql = "SELECT cm.id AS cmid,
+        $userpropssql = "SELECT cm.id AS cmid,
                        qa.*
                   FROM {context} c
             INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
@@ -207,9 +207,9 @@ class provider implements
                        AND qa.userid = :userid
               ORDER BY cm.id ASC";
 
-        $userProps = $DB->get_recordset_sql($userPropsSql, $params);
+        $userprops = $DB->get_recordset_sql($userpropssql, $params);
 
-        $proposesSql = "SELECT cm.id AS cmid,
+        $proposessql = "SELECT cm.id AS cmid,
                        qa.*
                   FROM {context} c
             INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
@@ -221,9 +221,9 @@ class provider implements
               ORDER BY cm.id ASC";
 
 
-        $proposes = $DB->get_recordset_sql($proposesSql, $params);
+        $proposes = $DB->get_recordset_sql($proposessql, $params);
 
-        $analysisSql = "SELECT cm.id AS cmid,
+        $analysissql = "SELECT cm.id AS cmid,
                        qa.*
                   FROM {context} c
             INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
@@ -234,86 +234,86 @@ class provider implements
                        AND qa.userid = :userid
               ORDER BY cm.id ASC";
 
-        $analysisRecords = $DB->get_recordset_sql($analysisSql, $params);
+        $analysisrecords = $DB->get_recordset_sql($analysissql, $params);
 
         /** @var array[][][] $attemptdata */
         $attemptdata = [];
 
 
-        foreach ($schedule as $scheduleRecord) {
-            if (!key_exists($scheduleRecord->cmid, $attemptdata)) {
-                $attemptdata[$scheduleRecord->cmid] = array();
-                $attemptdata[$scheduleRecord->cmid]['schedule'] = array();
+        foreach ($schedule as $schedulerecord) {
+            if (!key_exists($schedulerecord->cmid, $attemptdata)) {
+                $attemptdata[$schedulerecord->cmid] = array();
+                $attemptdata[$schedulerecord->cmid]['schedule'] = array();
             }
 
-            if (!key_exists($scheduleRecord->day_idx, $attemptdata[$scheduleRecord->cmid]['schedule'])) {
-                $attemptdata[$scheduleRecord->cmid]['schedule'][$scheduleRecord->day_idx] = array();
+            if (!key_exists($schedulerecord->day_idx, $attemptdata[$schedulerecord->cmid]['schedule'])) {
+                $attemptdata[$schedulerecord->cmid]['schedule'][$schedulerecord->day_idx] = array();
             }
 
-            $attemptdata[$scheduleRecord->cmid]['schedule'][$scheduleRecord->day_idx][$scheduleRecord->period_idx] =
-                $scheduleRecord->check_status;
+            $attemptdata[$schedulerecord->cmid]['schedule'][$schedulerecord->day_idx][$schedulerecord->period_idx] =
+                $schedulerecord->check_status;
         }
         $schedule->close();
 
-        foreach ($readinessRecords as $readinessRecord) {
-            if (!key_exists($readinessRecord->cmid, $attemptdata)) {
-                $attemptdata[$readinessRecord->cmid] = array();
-                $attemptdata[$readinessRecord->cmid]['readiness'] = array();
+        foreach ($readinessrecords as $readinessrecord) {
+            if (!key_exists($readinessrecord->cmid, $attemptdata)) {
+                $attemptdata[$readinessrecord->cmid] = array();
+                $attemptdata[$readinessrecord->cmid]['readiness'] = array();
             }
 
-            $attemptdata[$readinessRecord->cmid]['readiness'][$readinessRecord->period_idx] =
-                $readinessRecord->check_status;
+            $attemptdata[$readinessrecord->cmid]['readiness'][$readinessrecord->period_idx] =
+                $readinessrecord->check_status;
         }
-        $readinessRecords->close();
+        $readinessrecords->close();
 
-        foreach ($usrAttempts as $usrAttempt) {
-            if (!key_exists($usrAttempt->cmid, $attemptdata)) {
-                $attemptdata[$usrAttempt->cmid] = array();
+        foreach ($usrattempts as $usrattempt) {
+            if (!key_exists($usrattempt->cmid, $attemptdata)) {
+                $attemptdata[$usrattempt->cmid] = array();
             }
 
-            $attemptdata[$usrAttempt->cmid]['timecreated'] = transform::datetime($usrAttempt->timecreated);
-            $attemptdata[$usrAttempt->cmid]['timemodified'] = transform::datetime($usrAttempt->timemodified);
+            $attemptdata[$usrattempt->cmid]['timecreated'] = transform::datetime($usrattempt->timecreated);
+            $attemptdata[$usrattempt->cmid]['timemodified'] = transform::datetime($usrattempt->timemodified);
         }
-        $usrAttempts->close();
+        $usrattempts->close();
 
-        foreach ($userProps as $userProp) {
-            if (!key_exists($userProp->cmid, $attemptdata)) {
-                $attemptdata[$userProp->cmid] = array();
+        foreach ($userprops as $userprop) {
+            if (!key_exists($userprop->cmid, $attemptdata)) {
+                $attemptdata[$userprop->cmid] = array();
             }
 
-            $attemptdata[$userProp->cmid]['age'] = $userProp->age;
+            $attemptdata[$userprop->cmid]['age'] = $userprop->age;
         }
-        $userProps->close();
+        $userprops->close();
 
-        foreach ($analysisRecords as $analysisRecord) {
-            if (!key_exists($analysisRecord->cmid, $attemptdata)) {
-                $attemptdata[$analysisRecord->cmid] = array();
+        foreach ($analysisrecords as $analysisrecord) {
+            if (!key_exists($analysisrecord->cmid, $attemptdata)) {
+                $attemptdata[$analysisrecord->cmid] = array();
             }
 
-            $attemptdata[$analysisRecord->cmid]['adminnote'] = $analysisRecord->notes;
+            $attemptdata[$analysisrecord->cmid]['adminnote'] = $analysisrecord->notes;
         }
-        $analysisRecords->close();
+        $analysisrecords->close();
 
-        foreach ($proposes as $proposeElement) {
-            if (!key_exists($proposeElement->cmid, $attemptdata)) {
-                $attemptdata[$proposeElement->cmid] = array();
-                $attemptdata[$proposeElement->cmid]['proposes'] = array();
+        foreach ($proposes as $proposeelement) {
+            if (!key_exists($proposeelement->cmid, $attemptdata)) {
+                $attemptdata[$proposeelement->cmid] = array();
+                $attemptdata[$proposeelement->cmid]['proposes'] = array();
             }
 
-            $attemptdata[$proposeElement->cmid]['proposes'][$proposeElement->id] = array(
-                "cm" => $proposeElement->cm,
-                "actions" => $proposeElement->actions,
+            $attemptdata[$proposeelement->cmid]['proposes'][$proposeelement->id] = array(
+                "cm" => $proposeelement->cm,
+                "actions" => $proposeelement->actions,
             );
         }
         $proposes->close();
 
-        foreach ($attemptdata as $cmId => $cmData) {
-            if (!empty($attemptdata[$cmId])) {
-                $context = context_module::instance($cmId);
+        foreach ($attemptdata as $cmid => $cmdata) {
+            if (!empty($attemptdata[$cmid])) {
+                $context = context_module::instance($cmid);
                 // Fetch the generic module data for the questionnaire.
                 $contextdata = helper::get_context_data($context, $user);
                 // Merge with attempt data and write it.
-                $contextdata = (object)array_merge((array)$contextdata, $attemptdata[$cmId]);
+                $contextdata = (object)array_merge((array)$contextdata, $attemptdata[$cmid]);
                 writer::with_context($context)->export_data([], $contextdata);
             }
         }

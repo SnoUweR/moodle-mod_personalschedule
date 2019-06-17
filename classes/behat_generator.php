@@ -7,106 +7,106 @@ require_once(__DIR__ . '/../../../lib/behat/behat_base.php');
 class behat_generator extends behat_base {
 
     /**
-     * @Given /^I fill personalschedule "(?P<personalscheduleName>(?:[^"]|\\")*)" activity settings with the test data$/
-     * @param $personalscheduleName
+     * @Given /^I fill personalschedule "(?P<personalschedulename>(?:[^"]|\\")*)" activity settings with the test data$/
+     * @param $personalschedulename
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function i_fill_personalschedule_activity_settings_with_test_data($personalscheduleName) {
+    public function i_fill_personalschedule_activity_settings_with_test_data($personalschedulename) {
         global $DB;
 
-        $personalschedule = $DB->get_record('personalschedule', array('name' => $personalscheduleName),
+        $personalschedule = $DB->get_record('personalschedule', array('name' => $personalschedulename),
             '*', MUST_EXIST);
 
 
-        $courseId = $personalschedule->course;
-        $courseModules = get_array_of_activities($courseId);
+        $courseid = $personalschedule->course;
+        $coursemodules = get_array_of_activities($courseid);
 
-        /** @var array $cmProps Array key - cm id. */
-        $cmProps = array();
-        foreach ($courseModules as $courseModule)
+        /** @var array $cmprops Array key - cm id. */
+        $cmprops = array();
+        foreach ($coursemodules as $coursemodule)
         {
-            $cmProp = new stdClass();
-            $cmProp->personalschedule = $personalschedule->id;
-            $cmProp->cm = $courseModule->cm;
-            $cmProp->duration = 60 * 60; // 1 hour.
-            $cmProp->category = $courseModule->section;
-            $cmProp->weight = 1;
-            $cmProp->is_ignored = false;
+            $cmprop = new stdClass();
+            $cmprop->personalschedule = $personalschedule->id;
+            $cmprop->cm = $coursemodule->cm;
+            $cmprop->duration = 60 * 60; // 1 hour.
+            $cmprop->category = $coursemodule->section;
+            $cmprop->weight = 1;
+            $cmprop->is_ignored = false;
 
-            $cmProps[$courseModule->cm] = $cmProp;
+            $cmprops[$coursemodule->cm] = $cmprop;
         }
-        self::set_cm_props($personalschedule->id, $cmProps);
+        self::set_cm_props($personalschedule->id, $cmprops);
     }
 
     /**
-     * @param $personalscheduleId int
-     * @param $cmProps array
+     * @param $personalscheduleid int
+     * @param $cmprops array
      * @throws coding_exception
      * @throws dml_exception
      */
-    private static function set_cm_props($personalscheduleId, $cmProps)
+    private static function set_cm_props($personalscheduleid, $cmprops)
     {
         global $DB;
 
         $delete_conditions = array();
-        $delete_conditions["personalschedule"] = $personalscheduleId;
+        $delete_conditions["personalschedule"] = $personalscheduleid;
 
         $DB->delete_records("personalschedule_cm_props", $delete_conditions);
-        $DB->insert_records("personalschedule_cm_props", $cmProps);
+        $DB->insert_records("personalschedule_cm_props", $cmprops);
     }
 
     /**
      *
-     * @Given /^I fill personalschedule "(?P<personalscheduleName>(?:[^"]|\\")*)" user settings with the test data$/
-     * @param $personalscheduleName string
+     * @Given /^I fill personalschedule "(?P<personalschedulename>(?:[^"]|\\")*)" user settings with the test data$/
+     * @param $personalschedulename string
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function i_fill_personalschedule_user_settings_with_test_data($personalscheduleName) {
+    public function i_fill_personalschedule_user_settings_with_test_data($personalschedulename) {
         global $DB;
 
-        $personalschedule = $DB->get_record('personalschedule', array('name' => $personalscheduleName),
+        $personalschedule = $DB->get_record('personalschedule', array('name' => $personalschedulename),
             '*', MUST_EXIST);
 
         $user = $this->get_session_user();
 
-        $userId = $user->id;
+        $userid = $user->id;
 
         $schedule = new schedule();
 
-        $minDayIdx =  mod_personalschedule_config::dayIndexMin;
-        $maxDayIdx = mod_personalschedule_config::dayIndexMax;
+        $mindayidx =  mod_personalschedule_config::dayindexmin;
+        $maxdayidx = mod_personalschedule_config::dayindexmax;
 
-        for ($dayIdx = $minDayIdx; $dayIdx <= $maxDayIdx; $dayIdx++) {
-            for ($periodIdx = 2; $periodIdx <= 11; $periodIdx++) {
+        for ($dayidx = $mindayidx; $dayidx <= $maxdayidx; $dayidx++) {
+            for ($periodidx = 2; $periodidx <= 11; $periodidx++) {
                 $schedule->add_status(
-                    $dayIdx, $periodIdx, mod_personalschedule_config::statusSleep, 0);
+                    $dayidx, $periodidx, mod_personalschedule_config::statussleep, 0);
             }
         }
 
         $schedule->fill_empty_day_periods_with_status(
-            mod_personalschedule_config::statusFree, 1);
+            mod_personalschedule_config::statusfree, 1);
 
-        self::set_schedule($personalschedule->id, $userId, $schedule, 18);
+        self::set_schedule($personalschedule->id, $userid, $schedule, 18);
 
     }
 
     /**
-     * @param $personalscheduleId int
-     * @param $userId int
+     * @param $personalscheduleid int
+     * @param $userid int
      * @param $schedule mod_personalschedule\items\schedule
      * @param $age int
      * @throws coding_exception
      * @throws dml_exception
      */
-    private static function set_schedule($personalscheduleId, $userId, $schedule, $age)
+    private static function set_schedule($personalscheduleid, $userid, $schedule, $age)
     {
         global $DB;
         $delete_conditions = array();
-        $delete_conditions["userid"] = $userId;
-        $delete_conditions["personalschedule"] = $personalscheduleId;
+        $delete_conditions["userid"] = $userid;
+        $delete_conditions["personalschedule"] = $personalscheduleid;
 
         $schedule_inserts = array();
         $statuses = $schedule->get_statuses();
@@ -114,8 +114,8 @@ class behat_generator extends behat_base {
             foreach ($val as $period_idx => $check_status)
             {
                 $newdata = new stdClass();
-                $newdata->userid = $userId;
-                $newdata->personalschedule = $personalscheduleId;
+                $newdata->userid = $userid;
+                $newdata->personalschedule = $personalscheduleid;
                 $newdata->period_idx = $period_idx;
                 $newdata->day_idx = $day_idx;
                 $newdata->check_status = $check_status;
@@ -129,51 +129,51 @@ class behat_generator extends behat_base {
         $DB->insert_records("personalschedule_schedules", $schedule_inserts);
 
         $readinesses = $schedule->get_readinesses();
-        $readinessInserts = array();
-        foreach ($readinesses as $periodIdx => $readinessStatus)
+        $readinessinserts = array();
+        foreach ($readinesses as $periodidx => $readinessstatus)
         {
             $newdata = new stdClass();
-            $newdata->userid = $userId;
-            $newdata->personalschedule = $personalscheduleId;
-            $newdata->period_idx = $periodIdx;
-            $newdata->check_status = $readinessStatus;
+            $newdata->userid = $userid;
+            $newdata->personalschedule = $personalscheduleid;
+            $newdata->period_idx = $periodidx;
+            $newdata->check_status = $readinessstatus;
 
-            $readinessInserts[] = $newdata;
+            $readinessinserts[] = $newdata;
         }
 
         $DB->delete_records("personalschedule_readiness", $delete_conditions);
-        $DB->insert_records("personalschedule_readiness", $readinessInserts);
+        $DB->insert_records("personalschedule_readiness", $readinessinserts);
 
-        $alreadySubmitted = $DB->record_exists("personalschedule_usrattempts", $delete_conditions);
+        $alreadysubmitted = $DB->record_exists("personalschedule_usrattempts", $delete_conditions);
 
-        $usrAttemptObject = new stdClass();
-        $usrAttemptObject->userid = $userId;
-        $usrAttemptObject->personalschedule = $personalscheduleId;
-        $usrAttemptObject->timemodified = time();
+        $usrattemptobject = new stdClass();
+        $usrattemptobject->userid = $userid;
+        $usrattemptobject->personalschedule = $personalscheduleid;
+        $usrattemptobject->timemodified = time();
 
-        if ($alreadySubmitted) {
-            $DB->update_record("personalschedule_usrattempts", $usrAttemptObject);
+        if ($alreadysubmitted) {
+            $DB->update_record("personalschedule_usrattempts", $usrattemptobject);
         } else {
-            $usrAttemptObject->timecreated = time();
-            $DB->insert_record("personalschedule_usrattempts", $usrAttemptObject);
+            $usrattemptobject->timecreated = time();
+            $DB->insert_record("personalschedule_usrattempts", $usrattemptobject);
         }
 
 
-        $ageInsert = new stdClass();
-        $ageInsert->userid = $userId;
-        $ageInsert->personalschedule = $personalscheduleId;
+        $ageinsert = new stdClass();
+        $ageinsert->userid = $userid;
+        $ageinsert->personalschedule = $personalscheduleid;
 
-        if ($age < mod_personalschedule_config::ageMin) $age = mod_personalschedule_config::ageMin;
-        else if ($age > mod_personalschedule_config::ageMax) $age = mod_personalschedule_config::ageMax;
+        if ($age < mod_personalschedule_config::agemin) $age = mod_personalschedule_config::agemin;
+        else if ($age > mod_personalschedule_config::agemax) $age = mod_personalschedule_config::agemax;
 
-        $ageInsert->age = $age;
+        $ageinsert->age = $age;
         $DB->delete_records("personalschedule_user_props", $delete_conditions);
-        $DB->insert_record("personalschedule_user_props", $ageInsert);
+        $DB->insert_record("personalschedule_user_props", $ageinsert);
     }
 
-    private function delete_proposed_cache($userId) {
+    private function delete_proposed_cache($userid) {
         global $DB;
-        $DB->delete_records("personalschedule_proposes", array("userid" => $userId));
+        $DB->delete_records("personalschedule_proposes", array("userid" => $userid));
     }
 
     /**
@@ -186,38 +186,38 @@ class behat_generator extends behat_base {
      * @throws coding_exception
      */
     public function i_should_log_performance_info($tag) {
-        $maxTryings = 10;
+        $maxtryings = 10;
         $data = "";
-        $userId = $this->get_session_user()->id;
-        for ($currentTry = 1; $currentTry <= $maxTryings; $currentTry++) {
-            $this->delete_proposed_cache($userId);
+        $userid = $this->get_session_user()->id;
+        for ($currenttry = 1; $currenttry <= $maxtryings; $currenttry++) {
+            $this->delete_proposed_cache($userid);
             $this->getSession()->reload();
 
-            $containerPageLoadTime = $this->get_selected_node("css_element", ".timeused");
-            $containerDbQueries = $this->get_selected_node("css_element", ".dbqueries");
-            $containerRam = $this->get_selected_node("css_element", ".memoryused");
+            $containerpageloadtime = $this->get_selected_node("css_element", ".timeused");
+            $containerdbqueries = $this->get_selected_node("css_element", ".dbqueries");
+            $containerram = $this->get_selected_node("css_element", ".memoryused");
 
             $data .= sprintf("---\n%s (%d) WITHOUT CACHE\n%s\n%s\n%s\n---\n",
                 $tag,
-                $currentTry,
-                $containerPageLoadTime->getHtml(),
-                $containerDbQueries->getHtml(),
-                $containerRam->getHtml());
+                $currenttry,
+                $containerpageloadtime->getHtml(),
+                $containerdbqueries->getHtml(),
+                $containerram->getHtml());
         }
 
-        for ($currentTry = 1; $currentTry <= $maxTryings; $currentTry++) {
+        for ($currenttry = 1; $currenttry <= $maxtryings; $currenttry++) {
             $this->getSession()->reload();
 
-            $containerPageLoadTime = $this->get_selected_node("css_element", ".timeused");
-            $containerDbQueries = $this->get_selected_node("css_element", ".dbqueries");
-            $containerRam = $this->get_selected_node("css_element", ".memoryused");
+            $containerpageloadtime = $this->get_selected_node("css_element", ".timeused");
+            $containerdbqueries = $this->get_selected_node("css_element", ".dbqueries");
+            $containerram = $this->get_selected_node("css_element", ".memoryused");
 
             $data .= sprintf("---\n%s (%d) WITH CACHE\n%s\n%s\n%s\n---\n",
                 $tag,
-                $currentTry,
-                $containerPageLoadTime->getHtml(),
-                $containerDbQueries->getHtml(),
-                $containerRam->getHtml());
+                $currenttry,
+                $containerpageloadtime->getHtml(),
+                $containerdbqueries->getHtml(),
+                $containerram->getHtml());
         }
 
         file_put_contents('C:\\moodle\\log.txt', $data, FILE_APPEND);
@@ -238,14 +238,14 @@ class behat_generator extends behat_base {
     /**
      * Creates the specified element. More info about available elements in http://docs.moodle.org/dev/Acceptance_testing#Fixtures.
      *
-     * @Given /^the course "(?P<courseShortName>(?:[^"]|\\")*)" with "(?P<courseSize>\d+)" elements exists$/
+     * @Given /^the course "(?P<courseshortname>(?:[^"]|\\")*)" with "(?P<coursesize>\d+)" elements exists$/
      *
      * @throws Exception
      */
-    public function the_course_with_elements_exists($courseShortName, $courseSize) {
+    public function the_course_with_elements_exists($courseshortname, $coursesize) {
         $backend = new tool_generator_course_backend(
-            $courseShortName,
-            $courseSize
+            $courseshortname,
+            $coursesize
         );
         $id = $backend->make();
     }

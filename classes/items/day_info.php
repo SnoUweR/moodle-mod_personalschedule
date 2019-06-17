@@ -5,52 +5,52 @@ namespace mod_personalschedule\items;
 class day_info
 {
     /** @var day_free_period_group[] */
-    public $freePeriodGroups = array();
+    public $freeperiodgroups = array();
 
-    public $dayBeginPeriodIdx = 0;
-    public $dayBeginDayIdx = 0;
-    public $dayEndPeriodIdx = 0;
-    public $dayEndDayIdx = 0;
-    public $weekIdx = 0;
+    public $daybeginperiodidx = 0;
+    public $daybegindayidx = 0;
+    public $dayendperiodidx = 0;
+    public $dayenddayidx = 0;
+    public $weekidx = 0;
 
-    public function __construct($dayBeginDayIdx, $dayBeginPeriodIdx, $dayEndDayIdx, $dayEndPeriodIdx, $weekIdx)
+    public function __construct($daybegindayidx, $daybeginperiodidx, $dayenddayidx, $dayendperiodidx, $weekidx)
     {
-        $this->dayBeginDayIdx = $dayBeginDayIdx;
-        $this->dayBeginPeriodIdx = $dayBeginPeriodIdx;
+        $this->daybegindayidx = $daybegindayidx;
+        $this->daybeginperiodidx = $daybeginperiodidx;
 
-        $this->dayEndDayIdx = $dayEndDayIdx;
-        $this->dayEndPeriodIdx = $dayEndPeriodIdx;
+        $this->dayenddayidx = $dayenddayidx;
+        $this->dayendperiodidx = $dayendperiodidx;
 
-        $this->weekIdx = $weekIdx;
+        $this->weekidx = $weekidx;
     }
 
     /**
-     * @param $groupIdx int
+     * @param $groupidx int
      * @return bool
      */
-    public function is_group_exists($groupIdx)
+    public function is_group_exists($groupidx)
     {
-        return array_key_exists($groupIdx, $this->freePeriodGroups);
+        return array_key_exists($groupidx, $this->freeperiodgroups);
     }
 
     /**
-     * @param $groupIdx int
+     * @param $groupidx int
      * @return bool|day_free_period_group
      */
-    public function get_group($groupIdx)
+    public function get_group($groupidx)
     {
-        if (!$this->is_group_exists($groupIdx)) return false;
+        if (!$this->is_group_exists($groupidx)) return false;
 
-        return $this->freePeriodGroups[$groupIdx];
+        return $this->freeperiodgroups[$groupidx];
     }
 
 
     /**
-     * @param $groupIdx int
-     * @param $freePeriodGroup day_free_period_group
+     * @param $groupidx int
+     * @param $freeperiodgroup day_free_period_group
      */
-    public function add_free_period_group($groupIdx, $freePeriodGroup)
+    public function add_free_period_group($groupidx, $freeperiodgroup)
     {
-        $this->freePeriodGroups[$groupIdx] = $freePeriodGroup;
+        $this->freeperiodgroups[$groupidx] = $freeperiodgroup;
     }
 }

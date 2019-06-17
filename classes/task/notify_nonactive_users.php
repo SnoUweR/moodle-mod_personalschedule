@@ -44,14 +44,14 @@ class notify_nonactive_users extends \core\task\scheduled_task {
     public function execute() {
         global $DB;
         try {
-            $userIdsObjects = $DB->get_records("personalization_usrattempts", null, '',
+            $useridsobjects = $DB->get_records("personalization_usrattempts", null, '',
                 'DISTINCT userid');
-            $userIds = array();
-            foreach ($userIdsObjects as $userIdObject) {
-                $userIds[] = $userIdObject->userid;
+            $userids = array();
+            foreach ($useridsobjects as $useridobject) {
+                $userids[] = $useridobject->userid;
             }
             $users = $DB->get_records_list(
-                'user', 'id', $userIds, '', 'id, currentlogin, firstname');
+                'user', 'id', $userids, '', 'id, currentlogin, firstname');
         } catch (\dml_exception $e) {
             return;
         }
@@ -61,41 +61,41 @@ class notify_nonactive_users extends \core\task\scheduled_task {
             // TODO: Check if user has all elements completed.
 
             // If user don't join on courses for a two days.
-            if ($time - $user->currentlogin >= (mod_personalschedule_config::daysToSendScheduleNotify * 24 * 60 * 60)) {
+            if ($time - $user->currentlogin >= (mod_personalschedule_config::daystosendschedulenotify * 24 * 60 * 60)) {
                 self::send_notification_message(0,
-                    $user->id, $user->firstname, mod_personalschedule_config::daysToSendScheduleNotify);
+                    $user->id, $user->firstname, mod_personalschedule_config::daystosendschedulenotify);
             }
         }
     }
 
     /**
      * Send message (with parameter 'notification' set to true) through Messages API to a specific user.
-     * @param int $courseId Course ID.
-     * @param int $receiverUserId Receiver User ID.
-     * @param string $receiverFirstname Receiver first name.
-     * @param int $skippedDays Number of skipped days.
+     * @param int $courseid Course ID.
+     * @param int $receiveruserid Receiver User ID.
+     * @param string $receiverfirstname Receiver first name.
+     * @param int $skippeddays Number of skipped days.
      * @return int|bool The integer ID of the new message or false if there was a problem with submitted data.
      * @throws coding_exception
      */
-    private static function send_notification_message($courseId, $receiverUserId, $receiverFirstname,
-        $skippedDays) {
+    private static function send_notification_message($courseid, $receiveruserid, $receiverfirstname,
+        $skippeddays) {
 
         $supportuser = core_user::get_support_user();
 
         $message = new \core\message\message();
-        $message->courseid = $courseId;
+        $message->courseid = $courseid;
         $message->component = 'mod_personalschedule';
         $message->name = 'longofflinereminder';
         $message->userfrom = $supportuser;
-        $message->userto = $receiverUserId;
+        $message->userto = $receiveruserid;
         $message->notification = 1;
 
         $message->subject = get_string('notifynoactiveusers_title', 'personalschedule');
-        $fullHtmlMessage = sprintf(get_string('notifynoactiveusers_message', 'personalschedule'),
-            $receiverFirstname, $skippedDays);
-        $message->fullmessage = html_to_text($fullHtmlMessage);
+        $fullhtmlmessage = sprintf(get_string('notifynoactiveusers_message', 'personalschedule'),
+            $receiverfirstname, $skippeddays);
+        $message->fullmessage = html_to_text($fullhtmlmessage);
         $message->fullmessageformat = FORMAT_HTML;
-        $message->fullmessagehtml = $fullHtmlMessage;
+        $message->fullmessagehtml = $fullhtmlmessage;
         $message->smallmessage = '';
         $message->contexturl = '';
         $message->contexturlname = '';

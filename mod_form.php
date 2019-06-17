@@ -30,7 +30,7 @@ require_once ($CFG->dirroot.'/course/moodleform_mod.php');
 class mod_personalschedule_mod_form extends moodleform_mod {
 
     /** @var cm_info[] */
-    private $cachedCourseModules = null;
+    private $cachedcoursemodules = null;
 
     function definition() {
         global $CFG, $COURSE;
@@ -53,29 +53,29 @@ class mod_personalschedule_mod_form extends moodleform_mod {
             get_string('mod_form_header_connection_elements', 'personalschedule'));
 
 
-        if ($this->cachedCourseModules == null) {
-            $this->cachedCourseModules = personalschedule_get_course_activities($COURSE);
+        if ($this->cachedcoursemodules == null) {
+            $this->cachedcoursemodules = personalschedule_get_course_activities($COURSE);
         }
 
-        foreach ($this->cachedCourseModules as $courseModule) {
-            $icon = html_writer::empty_tag('img', array('src' => $courseModule->get_icon_url()));
-            $moduleNameString = sprintf("<a href=\"$CFG->wwwroot/mod/%s/view.php?id=%s\">%s %s (%s)</a>",
-                $courseModule->modname,  $courseModule->id, $icon, $courseModule->name, $courseModule->modfullname);
-            $mform->addElement('static', 'description', "", $moduleNameString);
+        foreach ($this->cachedcoursemodules as $coursemodule) {
+            $icon = html_writer::empty_tag('img', array('src' => $coursemodule->get_icon_url()));
+            $modulenamestring = sprintf("<a href=\"$CFG->wwwroot/mod/%s/view.php?id=%s\">%s %s (%s)</a>",
+                $coursemodule->modname,  $coursemodule->id, $icon, $coursemodule->name, $coursemodule->modfullname);
+            $mform->addelement('static', 'description', "", $modulenamestring);
 
             // Course's activity properties.
 
             // Duration.
-            $durationElementName =
-                mod_personalschedule_config::cmPropKeyDuration.mod_personalschedule_config::separatorHiddenInput.$courseModule->id;
-            $mform->addElement('duration', $durationElementName,
+            $durationelementname =
+                mod_personalschedule_config::cmpropkeyduration.mod_personalschedule_config::separatorhiddeninput.$coursemodule->id;
+            $mform->addElement('duration', $durationelementname,
                 get_string('mod_form_header_connection_elements_duration', 'personalschedule'));
-            $mform->addHelpButton($durationElementName,
+            $mform->addHelpButton($durationelementname,
                 'mod_form_header_connection_elements_category', 'personalschedule');
 
             // Category.
-            $categoryElementName =
-                mod_personalschedule_config::cmPropKeyCategory.mod_personalschedule_config::separatorHiddenInput.$courseModule->id;
+            $categoryelementname =
+                mod_personalschedule_config::cmpropkeycategory.mod_personalschedule_config::separatorhiddeninput.$coursemodule->id;
             $mform->addElement('text', $categoryElementName,
                 get_string('mod_form_header_connection_elements_category', 'personalschedule'));
             $mform->addHelpButton($categoryElementName,
@@ -83,29 +83,29 @@ class mod_personalschedule_mod_form extends moodleform_mod {
             $mform->setType($categoryElementName, PARAM_INT);
 
             // Weight.
-            $weightElementName =
-                mod_personalschedule_config::cmPropKeyWeight.mod_personalschedule_config::separatorHiddenInput.$courseModule->id;
+            $weightelementname =
+                mod_personalschedule_config::cmpropkeyweight.mod_personalschedule_config::separatorhiddeninput.$coursemodule->id;
             $mform->addElement('text', $weightElementName,
                 get_string('mod_form_header_connection_elements_weight', 'personalschedule'));
             $mform->addHelpButton($weightElementName,
                 'mod_form_header_connection_elements_weight', 'personalschedule');
-            $mform->setType($weightElementName, PARAM_INT);
+            $mform->setType($weightelementname, PARAM_INT);
 
             // "Should ignored" flag.
-            $isIgnoredElementName =
-                mod_personalschedule_config::cmPropKeyIsIgnored.mod_personalschedule_config::separatorHiddenInput.$courseModule->id;
-            $mform->addElement('advcheckbox', $isIgnoredElementName,
+            $isignoredelementname =
+                mod_personalschedule_config::cmpropkeyisignored.mod_personalschedule_config::separatorhiddeninput.$coursemodule->id;
+            $mform->addElement('advcheckbox', $isignoredelementname,
                 get_string('mod_form_header_connection_elements_is_ignored', 'personalschedule'),
                 '', array('group' => 1), array(0, 1));
-            $mform->addHelpButton($isIgnoredElementName,
+            $mform->addHelpButton($isignoredelementname,
                 'mod_form_header_connection_elements_is_ignored', 'personalschedule');
 
 
             // Validation settings.
-            $mform->addRule($durationElementName, null, 'required', null, 'client');
-            $mform->addRule($categoryElementName, null, 'required', null, 'client');
-            $mform->addRule($weightElementName, null, 'required', null, 'client');
-            $mform->addRule($isIgnoredElementName, null, 'required', null, 'client');
+            $mform->addRule($durationelementname, null, 'required', null, 'client');
+            $mform->addRule($categoryelementname, null, 'required', null, 'client');
+            $mform->addRule($weightelementname, null, 'required', null, 'client');
+            $mform->addRule($isignoredelementname, null, 'required', null, 'client');
 
             $mform->addElement('html', "<hr>");
         }
@@ -121,42 +121,42 @@ class mod_personalschedule_mod_form extends moodleform_mod {
 
     public function data_preprocessing(&$toform) {
         global $COURSE;
-        if ($this->cachedCourseModules == null) {
-            $this->cachedCourseModules = personalschedule_get_course_activities($COURSE);
+        if ($this->cachedcoursemodules == null) {
+            $this->cachedcoursemodules = personalschedule_get_course_activities($COURSE);
         }
 
-        foreach ($this->cachedCourseModules as $courseModule)
+        foreach ($this->cachedcoursemodules as $coursemodule)
         {
             $toform[
-                mod_personalschedule_config::cmPropKeyCategory.mod_personalschedule_config::separatorHiddenInput.$courseModule->id] =
-                $courseModule->section;
+                mod_personalschedule_config::cmpropkeycategory.mod_personalschedule_config::separatorhiddeninput.$coursemodule->id] =
+                $coursemodule->section;
             $toform[
-                mod_personalschedule_config::cmPropKeyWeight.mod_personalschedule_config::separatorHiddenInput.$courseModule->id] =
+                mod_personalschedule_config::cmpropkeyweight.mod_personalschedule_config::separatorhiddeninput.$coursemodule->id] =
                 1;
             $toform[
-                mod_personalschedule_config::cmPropKeyDuration.mod_personalschedule_config::separatorHiddenInput.$courseModule->id] =
+                mod_personalschedule_config::cmpropkeyduration.mod_personalschedule_config::separatorhiddeninput.$coursemodule->id] =
                 60*60; // 1 hour.
             $toform[
-                mod_personalschedule_config::cmPropKeyIsIgnored.mod_personalschedule_config::separatorHiddenInput.$courseModule->id] =
+                mod_personalschedule_config::cmpropkeyisignored.mod_personalschedule_config::separatorhiddeninput.$coursemodule->id] =
                 0;
         }
 
 
         $results = personalschedule_get_course_modules_props($toform["id"]);
-        foreach ($results as $courseModuleProps)
+        foreach ($results as $coursemoduleprops)
         {
-            $toform[mod_personalschedule_config::cmPropKeyCategory.mod_personalschedule_config::separatorHiddenInput.
-            $courseModuleProps->cm] =
-                $courseModuleProps->category;
-            $toform[mod_personalschedule_config::cmPropKeyWeight.mod_personalschedule_config::separatorHiddenInput.
-            $courseModuleProps->cm] =
-                $courseModuleProps->weight;
-            $toform[mod_personalschedule_config::cmPropKeyDuration.mod_personalschedule_config::separatorHiddenInput.
-            $courseModuleProps->cm] =
-                $courseModuleProps->duration;
-            $toform[mod_personalschedule_config::cmPropKeyIsIgnored.mod_personalschedule_config::separatorHiddenInput.
-            $courseModuleProps->cm] =
-                $courseModuleProps->is_ignored;
+            $toform[mod_personalschedule_config::cmpropkeycategory.mod_personalschedule_config::separatorhiddeninput.
+            $coursemoduleprops->cm] =
+                $coursemoduleprops->category;
+            $toform[mod_personalschedule_config::cmpropkeyweight.mod_personalschedule_config::separatorhiddeninput.
+            $coursemoduleprops->cm] =
+                $coursemoduleprops->weight;
+            $toform[mod_personalschedule_config::cmpropkeyduration.mod_personalschedule_config::separatorhiddeninput.
+            $coursemoduleprops->cm] =
+                $coursemoduleprops->duration;
+            $toform[mod_personalschedule_config::cmpropkeyisignored.mod_personalschedule_config::separatorhiddeninput.
+            $coursemoduleprops->cm] =
+                $coursemoduleprops->is_ignored;
         }
     }
 

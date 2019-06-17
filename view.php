@@ -28,7 +28,7 @@ require_once("lib.php");
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 
-$forceEdit = optional_param('edit', false, PARAM_BOOL);
+$forceedit = optional_param('edit', false, PARAM_BOOL);
 
 if (! $cm = get_coursemodule_from_id('personalschedule', $id)) {
     print_error('invalidcoursemodule');
@@ -84,32 +84,32 @@ if (!is_enrolled($context)) {
     echo $OUTPUT->notification(get_string("guestsnotallowed", "personalschedule"));
 }
 
-if ($personalschedulealreadydone && !$forceEdit) {
+if ($personalschedulealreadydone && !$forceedit) {
     echo "<div class=\"reportlink\"><a href=\"view.php?id=$cm->id&edit=1\">".
         get_string("view_edit_schedule", "personalschedule")."</a></div>";
 
     echo mod_personalschedule_proposer_ui::get_proposed_table($course, $USER->id, $cm);
 } else {
-    $totalCourseDurationSeconds = personalschedule_get_course_total_duration_in_seconds($personalschedule->id);
-    $totalCourseDurationMinutes = floor($totalCourseDurationSeconds / 60);
-    $totalCourseDurationHours = floor($totalCourseDurationMinutes / 60);
-    $totalCourseDurationDays = floor($totalCourseDurationHours / 24);
+    $totalcoursedurationseconds = personalschedule_get_course_total_duration_in_seconds($personalschedule->id);
+    $totalcoursedurationminutes = floor($totalcoursedurationseconds / 60);
+    $totalcoursedurationhours = floor($totalcoursedurationminutes / 60);
+    $totalcoursedurationdays = floor($totalcoursedurationhours / 24);
 
-    $totalCourseDurationDisplayValue = $totalCourseDurationSeconds;
+    $totalcoursedurationdisplayvalue = $totalcoursedurationseconds;
 
-    $totalCourseDurationText = get_string('durationformat_seconds', 'personalschedule');
-    if ($totalCourseDurationSeconds >= 60)
+    $totalcoursedurationtext = get_string('durationformat_seconds', 'personalschedule');
+    if ($totalcoursedurationseconds >= 60)
     {
-        $totalCourseDurationText = get_string('durationformat_minutes', 'personalschedule');
-        $totalCourseDurationDisplayValue = $totalCourseDurationMinutes;
-        if ($totalCourseDurationMinutes >= 60)
+        $totalcoursedurationtext = get_string('durationformat_minutes', 'personalschedule');
+        $totalcoursedurationdisplayvalue = $totalcoursedurationminutes;
+        if ($totalcoursedurationminutes >= 60)
         {
-            $totalCourseDurationDisplayValue = $totalCourseDurationHours;
-            $totalCourseDurationText = get_string('durationformat_hours', 'personalschedule');
-            if ($totalCourseDurationHours >= 24)
+            $totalcoursedurationdisplayvalue = $totalcoursedurationhours;
+            $totalcoursedurationtext = get_string('durationformat_hours', 'personalschedule');
+            if ($totalcoursedurationhours >= 24)
             {
-                $totalCourseDurationDisplayValue = $totalCourseDurationDays;
-                $totalCourseDurationText = get_string('durationformat_days', 'personalschedule');
+                $totalcoursedurationdisplayvalue = $totalcoursedurationdays;
+                $totalcoursedurationtext = get_string('durationformat_days', 'personalschedule');
             }
         }
     }
@@ -128,7 +128,7 @@ if ($personalschedulealreadydone && !$forceEdit) {
         "<input type=\"number\" id='age-input' name=\"age\" value=\"$age\" />";
 
     echo "<input type=\"hidden\" id=\"total-course-duration-hours-value\" name=\"total-course-duration-hours-value\" value=\"".
-        $totalCourseDurationHours."\" />";
+        $totalcoursedurationhours."\" />";
 
     echo "<hr>";
 
@@ -136,36 +136,36 @@ if ($personalschedulealreadydone && !$forceEdit) {
 
     $schedule = personalschedule_print_schedule_table($personalschedule->id, $USER->id);
 
-    $elapsedCourseHours = $totalCourseDurationHours;
-    $scheduledCourseDurationDays = 1;
-    $atLeastOneFree = false;
-    $scheduleData = $schedule->get_statuses();
+    $elapsedcoursehours = $totalcoursedurationhours;
+    $scheduledcoursedurationdays = 1;
+    $atleastonefree = false;
+    $scheduledata = $schedule->get_statuses();
 
-    while ($elapsedCourseHours > 0) {
-        for ($dayIdx = 1; $dayIdx <= 7; $dayIdx++) {
-            for ($periodIdx = 0; $periodIdx < 24; $periodIdx++) {
-                $check_status = $scheduleData[$dayIdx][$periodIdx];
-                if ($check_status == mod_personalschedule_config::statusFree) {
-                    $elapsedCourseHours--;
-                    $atLeastOneFree = true;
+    while ($elapsedcoursehours > 0) {
+        for ($dayidx = 1; $dayidx <= 7; $dayidx++) {
+            for ($periodidx = 0; $periodidx < 24; $periodidx++) {
+                $check_status = $scheduledata[$dayidx][$periodidx];
+                if ($check_status == mod_personalschedule_config::statusfree) {
+                    $elapsedcoursehours--;
+                    $atleastonefree = true;
                 }
             }
 
-            if ($elapsedCourseHours <= 0) break;
-            $scheduledCourseDurationDays++;
+            if ($elapsedcoursehours <= 0) break;
+            $scheduledcoursedurationdays++;
         }
 
-        if (!$atLeastOneFree) break;
+        if (!$atleastonefree) break;
     }
 
     echo '<p>'. get_string('totalcourseduration_const', 'personalschedule').
-        '<span id="total-course-duration-value">'.$totalCourseDurationDisplayValue.'</span>'.$totalCourseDurationText."</p>";
+        '<span id="total-course-duration-value">'.$totalcoursedurationdisplayvalue.'</span>'.$totalcoursedurationtext."</p>";
 
-    $scheduledCourseDurationDaysString = get_string('scheduledcourseduration_days', 'personalschedule');
-    $scheduledCourseDurationDaysValueToShow = $atLeastOneFree ? $scheduledCourseDurationDays : "-";
+    $scheduledcoursedurationdaysstring = get_string('scheduledcourseduration_days', 'personalschedule');
+    $scheduledcoursedurationdaysvaluetoshow = $atleastonefree ? $scheduledcoursedurationdays : "-";
     echo '<p>'. get_string('scheduledcourseduration_const', 'personalschedule').
-        "<span id='scheduled-course-duration-days'>".$scheduledCourseDurationDaysValueToShow."</span>".
-        $scheduledCourseDurationDaysString."</p>";
+        "<span id='scheduled-course-duration-days'>".$scheduledcoursedurationdaysvaluetoshow."</span>".
+        $scheduledcoursedurationdaysstring."</p>";
 
     echo '<br />';
     echo '<input type="submit" class="btn btn-primary" value="'.

@@ -18,19 +18,19 @@ class category_learning_object
     /** @var int Approximate duration (in seconds) of this learning object. Equals to duration
      * property from the activity properties, that are set by course's admin in the mod_personalschedule settings.
      */
-    public $totalDurationSec = 0;
+    public $totaldurationsec = 0;
 
-    /** @var int Modified duration (in seconds) of this learning object. Calculated from $totalDurationSec with
+    /** @var int Modified duration (in seconds) of this learning object. Calculated from $totaldurationsec with
      * some corrections that are based on user's age and number of interactions ($actions).
      */
-    public $modifiedDurationSec = 0;
+    public $modifieddurationsec = 0;
 
     /**
      * @return float|int Just returns modified duration, but in hours, not seconds.
      */
     public function get_modified_duration_in_hours()
     {
-        return $this->modifiedDurationSec / 60 / 60;
+        return $this->modifieddurationsec / 60 / 60;
     }
 
 

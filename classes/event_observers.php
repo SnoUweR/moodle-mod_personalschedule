@@ -41,11 +41,11 @@ class event_observers {
 
         global $DB, $CFG;
 
-        if (in_array($event->other['modulename'], mod_personalschedule_config::ignoredModnames)) {
+        if (in_array($event->other['modulename'], mod_personalschedule_config::ignoredmodnames)) {
             return;
         }
 
-        $courseInfo = $DB->get_record("course", array("id" => $event->courseid),"fullname, shortname");
+        $courseinfo = $DB->get_record("course", array("id" => $event->courseid),"fullname, shortname");
         $personalschedules = personalschedule_get_personalschedule_cms_by_course_id($event->courseid);
 
         if ($personalschedules === false) {
@@ -53,27 +53,27 @@ class event_observers {
         }
 
         $courseurl = course_get_url($event->courseid);
-        $courseLink = html_writer::link($courseurl, $courseInfo->fullname);
+        $courselink = html_writer::link($courseurl, $courseinfo->fullname);
 
-        $newModuleUrl = sprintf("$CFG->wwwroot/mod/%s/view.php?id=%s",
+        $newmoduleurl = sprintf("$CFG->wwwroot/mod/%s/view.php?id=%s",
             $event->other['modulename'], $event->contextinstanceid);
-        $newModuleViewLink = html_writer::link($newModuleUrl, $event->other['name']);
+        $newmoduleviewlink = html_writer::link($newmoduleurl, $event->other['name']);
 
-        $subject = get_string('event_cmcreated_title', 'personalschedule', $courseInfo->shortname);
-        foreach ($personalschedules as $personalscheduleCm) {
-            $personalscheduleEditUrl = sprintf("$CFG->wwwroot/course/modedit.php?update=%d", $personalscheduleCm->id);
+        $subject = get_string('event_cmcreated_title', 'personalschedule', $courseinfo->shortname);
+        foreach ($personalschedules as $personalschedulecm) {
+            $personalscheduleediturl = sprintf("$CFG->wwwroot/course/modedit.php?update=%d", $personalschedulecm->id);
             $fullmessage = sprintf(get_string('event_cmcreated_message', 'personalschedule'),
-                $courseLink,
-                $newModuleViewLink,
+                $courselink,
+                $newmoduleviewlink,
                 $event->other['modulename'],
-                html_writer::link($personalscheduleEditUrl,
+                html_writer::link($personalscheduleediturl,
                     get_string('event_cmcreated_message_update', 'personalschedule')
                 )
             );
 
             personalschedule_send_notification_message(
                 'coursemodulecreated', $event->courseid, $event->userid, $subject, $fullmessage,
-                $courseurl, $courseInfo->shortname);
+                $courseurl, $courseinfo->shortname);
         }
     }
 
@@ -123,18 +123,18 @@ class event_observers {
         }
 
         foreach ($personalschedules as $personalschedule) {
-            $conditionsArray = array(
+            $conditionsarray = array(
                 'userid' => $event->relateduserid,
                 'personalschedule' => $personalschedule->id,
             );
 
-            $DB->delete_records("personalschedule_analysis", $conditionsArray);
-            $DB->delete_records("personalschedule_readiness", $conditionsArray);
-            $DB->delete_records("personalschedule_proposes", $conditionsArray);
-            $DB->delete_records("personalschedule_schedules", $conditionsArray);
-            $DB->delete_records("personalschedule_user_props", $conditionsArray);
-            $DB->delete_records("personalschedule_usrattempts", $conditionsArray);
-            $DB->delete_records("personalschedule_analysis", $conditionsArray);
+            $DB->delete_records("personalschedule_analysis", $conditionsarray);
+            $DB->delete_records("personalschedule_readiness", $conditionsarray);
+            $DB->delete_records("personalschedule_proposes", $conditionsarray);
+            $DB->delete_records("personalschedule_schedules", $conditionsarray);
+            $DB->delete_records("personalschedule_user_props", $conditionsarray);
+            $DB->delete_records("personalschedule_usrattempts", $conditionsarray);
+            $DB->delete_records("personalschedule_analysis", $conditionsarray);
         }
     }
 }

@@ -42,35 +42,35 @@ include_once($CFG->libdir . '/gradelib.php');
 
 class mod_personalschedule_proposer {
     /**
-     * Returns true if number of actions with the proposedItem was changed.
-     * If proposedItem is the practice, then return true if number of attempts was changed.
-     * @param user_view_info[] $userActionsInfo
-     * @param proposed_activity_object $proposedItem
+     * Returns true if number of actions with the proposeditem was changed.
+     * If proposeditem is the practice, then return true if number of attempts was changed.
+     * @param user_view_info[] $useractionsinfo
+     * @param proposed_object $proposeditem
      * @return bool
      */
-    public static function get_proposed_element_actions_status($userActionsInfo, $proposedItem) {
+    public static function get_proposed_element_actions_status($useractionsinfo, $proposeditem) {
 
-        if (!($proposedItem instanceof proposed_activity_object)) return false;
+        if (!($proposeditem instanceof proposed_activity_object)) return false;
 
-        if (!array_key_exists($proposedItem->activity->id, $userActionsInfo)) {
+        if (!array_key_exists($proposeditem->activity->id, $useractionsinfo)) {
             return false;
         }
 
-        $userActionInfo = $userActionsInfo[$proposedItem->activity->id];
-        if ($userActionInfo instanceof user_practice_info) {
-            $currentActions = $userActionInfo->attempts;
-            $cachedActions = $proposedItem->actions;
-            return $currentActions != $cachedActions;
+        $useractioninfo = $useractionsinfo[$proposeditem->activity->id];
+        if ($useractioninfo instanceof user_practice_info) {
+            $currentactions = $useractioninfo->attempts;
+            $cachedactions = $proposeditem->actions;
+            return $currentactions != $cachedactions;
         } else {
-            $currentActions = $userActionInfo->actions;
-            $cachedActions = $proposedItem->actions;
-            return $currentActions != $cachedActions;
+            $currentactions = $useractioninfo->actions;
+            $cachedactions = $proposeditem->actions;
+            return $currentactions != $cachedactions;
         }
     }
 
 
-    private static function personal_items_get_sin_wave($periodLocalIdx) {
-        return sin($periodLocalIdx)/2;
+    private static function personal_items_get_sin_wave($periodlocalidx) {
+        return sin($periodlocalidx)/2;
     }
 
     /**
@@ -82,37 +82,37 @@ class mod_personalschedule_proposer {
      * 2) Maximum possible duration of present time.
      */
     private static function get_memory_duration_in_seconds_by_age($age) {
-        $xData = array(0, 15, 100);
-        $yData = array(1, 6, 2.8);
+        $xdata = array(0, 15, 100);
+        $ydata = array(1, 6, 2.8);
 
-        $value = self::interpolate($xData, $yData, $age, false);
-        $maxValue = max($yData);
-        return array($value, $maxValue);
+        $value = self::interpolate($xdata, $ydata, $age, false);
+        $maxvalue = max($ydata);
+        return array($value, $maxvalue);
     }
 
-    private static function interpolate($xData, $yData, $x, $extrapolate) {
-        $size = count($xData);
+    private static function interpolate($xdata, $ydata, $x, $extrapolate) {
+        $size = count($xdata);
 
         $i = 0; // Find left end of interval for interpolation.
-        if ($x >= $xData[$size - 2]) // Special case: beyond right end.
+        if ($x >= $xdata[$size - 2]) // Special case: beyond right end.
         {
             $i = $size - 2;
         } else {
-            while ($x > $xData[$i + 1]) $i++;
+            while ($x > $xdata[$i + 1]) $i++;
         }
-        $xL = $xData[$i];
-        $yL = $yData[$i];
-        $xR = $xData[$i + 1];
-        $yR = $yData[$i + 1]; // Points on either side (unless beyond ends).
+        $xl = $xdata[$i];
+        $yl = $ydata[$i];
+        $xr = $xdata[$i + 1];
+        $yr = $ydata[$i + 1]; // Points on either side (unless beyond ends).
         if (!$extrapolate) // If beyond ends of array and not extrapolating.
         {
-            if ($x < $xL) $yR = $yL;
-            if ($x > $xR) $yL = $yR;
+            if ($x < $xl) $yr = $yl;
+            if ($x > $xr) $yl = $yr;
         }
 
-        $dydx = ($yR - $yL) / ($xR - $xL); // Gradient.
+        $dydx = ($yr - $yl) / ($xr - $xl); // Gradient.
 
-        return $yL + $dydx * ($x - $xL); // Linear interpolation.
+        return $yl + $dydx * ($x - $xl); // Linear interpolation.
     }
 
     /**
@@ -121,7 +121,7 @@ class mod_personalschedule_proposer {
      * @return bool true if activity is a lecture.
      */
     private static function is_activity_lecture($activity) {
-        return in_array($activity->modname, mod_personalschedule_config::lecturesModNames);
+        return in_array($activity->modname, mod_personalschedule_config::lecturesmodnames);
     }
 
     /**
@@ -130,39 +130,59 @@ class mod_personalschedule_proposer {
      * @return bool true if activity is a practice.
      */
     private static function is_activity_practice($activity) {
-        return in_array($activity->modname, mod_personalschedule_config::practiceModNames);
+        return in_array($activity->modname, mod_personalschedule_config::practicemodnames);
     }
 
     /**
-     * @param int $personalscheduleId Personalization activity instance ID.
-     * @param int $userId User ID.
-     * @param int $courseId Course ID.
-     * @param int $userAge User age.
-     * @param mod_personalschedule\items\user_view_info[] $userActionsInfo
+     * @param int $personalscheduleid Personalization activity instance ID.
+     * @param int $userid User ID.
+     * @param int $courseid Course ID.
+     * @param int $userage User age.
+     * @param mod_personalschedule\items\user_view_info[] $useractionsinfo
      * @return category_object[]
      * @throws dml_exception
      * @throws moodle_exception
      */
-    private static function get_categories($personalscheduleId, $userId, $courseId, $userAge, $userActionsInfo) {
+    private static function get_categories($personalscheduleid, $userid, $courseid, $userage, $useractionsinfo) {
         /*
          * Receives:
          * - Uncompleted activities,
          * - Information about interactions number with each activity.
          */
-        $uncompletedActivities = self::personal_items_get_uncompleted_activities($courseId, $userId);
-        /** @var $categoriesObjects category_object[] */
-        $categoriesObjects = array();
+        $uncompletedactivities = self::personal_items_get_uncompleted_activities($courseid, $userid);
+        /** @var $categoriesobjects category_object[] */
+        $categoriesobjects = array();
 
-        $cmProps = personalschedule_get_course_modules_props($personalscheduleId);
-        foreach ($uncompletedActivities as $activity) {
+        $cmprops = personalschedule_get_course_modules_props($personalscheduleid);
+        usort($uncompletedactivities, function($a, $b) use ($cmprops) {
+
+            if (!key_exists($a->id, $cmprops)) {
+                return 0;
+            }
+
+            if (!key_exists($b->id, $cmprops)) {
+                return 0;
+            }
+
+            $propsa = $cmprops[$a->id];
+            $propsb = $cmprops[$b->id];
+
+            if ($propsa->weight == $propsb->weight) {
+                return 0;
+            }
+
+            return ($propsa->weight > $propsb->weight) ? 1 : -1;
+        });
+
+        foreach ($uncompletedactivities as $activity) {
 
             // Gets properties of the activity.
 
-            if (!key_exists($activity->id, $cmProps)) {
+            if (!key_exists($activity->id, $cmprops)) {
                 continue;
             }
 
-            $props = $cmProps[$activity->id];
+            $props = $cmprops[$activity->id];
 
             // We should ignore activities with "IS IGNORED" property, or if there are no properties at all.
             if ($props === false) {
@@ -172,85 +192,85 @@ class mod_personalschedule_proposer {
                 continue;
             }
 
-            $isLecture = self::is_activity_lecture($activity);
-            $isPractice = self::is_activity_practice($activity);
+            $islecture = self::is_activity_lecture($activity);
+            $ispractice = self::is_activity_practice($activity);
 
             // We should skip activities with unknown type.
-            if (!$isLecture && !$isPractice) {
+            if (!$islecture && !$ispractice) {
                 continue;
             }
 
-            if (!array_key_exists($props->category, $categoriesObjects)) {
-                $categoriesObjects[$props->category] = new category_object($props->category);
+            if (!array_key_exists($props->category, $categoriesobjects)) {
+                $categoriesobjects[$props->category] = new category_object($props->category);
             }
 
-            $newCategoryLearningObject = new category_learning_object($activity);
+            $newcategorylearningobject = new category_learning_object($activity);
 
-            if ($isLecture) {
-                if (array_key_exists($activity->id, $userActionsInfo)) {
-                    $newCategoryLearningObject->actions =
-                        $userActionsInfo[$activity->id]->actions;
+            if ($islecture) {
+                if (array_key_exists($activity->id, $useractionsinfo)) {
+                    $newcategorylearningobject->actions =
+                        $useractionsinfo[$activity->id]->actions;
                 }
-                $categoriesObjects[$props->category]->lectures[$activity->id] = $newCategoryLearningObject;
-            } else if ($isPractice) {
-                $categoriesObjects[$props->category]->practices[$activity->id] = $newCategoryLearningObject;
+                $categoriesobjects[$props->category]->lectures[$activity->id] = $newcategorylearningobject;
+            } else if ($ispractice) {
+                $categoriesobjects[$props->category]->practices[$activity->id] = $newcategorylearningobject;
 
-                if (array_key_exists($activity->id, $userActionsInfo)) {
-                    $userViewInfo = $userActionsInfo[$activity->id];
-                    if ($userViewInfo instanceof user_practice_info) {
-                        $newCategoryLearningObject->actions =
-                            $userViewInfo->attempts;
+                if (array_key_exists($activity->id, $useractionsinfo)) {
+                    $userviewinfo = $useractionsinfo[$activity->id];
+                    if ($userviewinfo instanceof user_practice_info) {
+                        $newcategorylearningobject->actions =
+                            $userviewinfo->attempts;
 
-                        $categoriesObjects[$props->category]->isPassed = $userViewInfo->isPassed;
-                        $categoriesObjects[$props->category]->attempts = $userViewInfo->attempts;
+                        $categoriesobjects[$props->category]->ispassed = $userviewinfo->ispassed;
+                        $categoriesobjects[$props->category]->attempts = $userviewinfo->attempts;
                     } else {
-                        $categoriesObjects[$props->category]->isPassed = $userViewInfo->actions > 0;
-                        $categoriesObjects[$props->category]->attempts = $userViewInfo->actions;
+                        $categoriesobjects[$props->category]->ispassed = $userviewinfo->actions > 0;
+                        $categoriesobjects[$props->category]->attempts = $userviewinfo->actions;
                     }
                 }
             }
         }
 
-        foreach ($categoriesObjects as $categoryIndex => $categoryObjects) {
-            if (mod_personalschedule_config::skipCompletedCategories && $categoryObjects->isPassed) {
-                $categoryObjects->shouldBeIgnored = true;
-                unset($categoriesObjects[$categoryIndex]);
+        foreach ($categoriesobjects as $categoryindex => $categoryobjects) {
+            if (mod_personalschedule_config::skipcompletedcategories && $categoryobjects->ispassed) {
+                $categoryobjects->shouldbeignored = true;
+                unset($categoriesobjects[$categoryindex]);
                 continue;
             }
 
-            if (mod_personalschedule_config::skipCategoriesWithoutPractice && count($categoryObjects->practices) == 0) {
-                $categoryObjects->shouldBeIgnored = true;
-                unset($categoriesObjects[$categoryIndex]);
+            if (mod_personalschedule_config::skipcategorieswithoutpractice && count($categoryobjects->practices) == 0) {
+                $categoryobjects->shouldbeignored = true;
+                unset($categoriesobjects[$categoryindex]);
                 continue;
             }
 
-            $attempts = $categoryObjects->attempts;
-            if ($attempts > mod_personalschedule_config::maxAttemptsToIgnoreCategory) {
-                $categoryObjects->shouldBeIgnored = true;
-                unset($categoriesObjects[$categoryIndex]);
+            $attempts = $categoryobjects->attempts;
+            if ($attempts > mod_personalschedule_config::maxattemptstoignorecategory) {
+                $categoryobjects->shouldbeignored = true;
+                unset($categoriesobjects[$categoryindex]);
                 continue;
             }
 
-            foreach ($categoryObjects->lectures as $activityId => $activity) {
-                $shouldUse = self::calculate_and_fill_duration_to_object($cmProps,
-                    $activityId, $attempts, $activity, $userAge);
+            foreach ($categoryobjects->lectures as $activityid => $activity) {
+                $shoulduse = self::calculate_and_fill_duration_to_object($cmprops,
+                    $activityid, $attempts, $activity, $userage);
 
-                if (!$shouldUse) continue;
-                $categoryObjects->add_learning_object($activity, true);
+                if (!$shoulduse) continue;
+                $categoryobjects->add_learning_object($activity, true);
             }
 
-            foreach ($categoryObjects->practices as $activityId => $activity) {
-                $shouldUse = self::calculate_and_fill_duration_to_object($cmProps,
-                    $activityId, $attempts, $activity, $userAge);
+            foreach ($categoryobjects->practices as $activityid => $activity) {
+                $shoulduse = self::calculate_and_fill_duration_to_object($cmprops,
+                    $activityid, $attempts, $activity, $userage);
 
-                if (!$shouldUse) continue;
-                $categoryObjects->add_learning_object($activity, false);
+                if (!$shoulduse) continue;
+                $categoryobjects->add_learning_object($activity, false);
             }
         }
 
         // Sorts the categories in total corrected duration descending order.
-        usort($categoriesObjects, array("mod_personalschedule_proposer", "categories_sort_by_duration_desc"));
-        return $categoriesObjects;
+        usort($categoriesobjects, array("mod_personalschedule_proposer", "categories_sort_by_duration_desc"));
+        return $categoriesobjects;
     }
 
     /**
@@ -267,145 +287,145 @@ class mod_personalschedule_proposer {
         $modinfo = get_fast_modinfo($course_object, $user_id);
         $ciinfo = new completion_info($course_object);
         $activities = $ciinfo->get_activities();
-        /** @var cm_info[] $uncompletedActivities */
-        $uncompletedActivities = array();
+        /** @var cm_info[] $uncompletedactivities */
+        $uncompletedactivities = array();
         foreach ($activities as $activity) {
-            if (in_array($activity->modname, mod_personalschedule_config::ignoredModnames)) {
+            if (in_array($activity->modname, mod_personalschedule_config::ignoredmodnames)) {
                 continue;
             }
-            $activityCompletionData = $ciinfo->get_data($activity, true, $user_id, $modinfo);
-            if ($activityCompletionData->completionstate == 0) {
-                $uncompletedActivities[] = $activity;
+            $activitycompletiondata = $ciinfo->get_data($activity, true, $user_id, $modinfo);
+            if ($activitycompletiondata->completionstate == 0) {
+                $uncompletedactivities[] = $activity;
             }
         }
-        return $uncompletedActivities;
+        return $uncompletedactivities;
     }
 
 
     /**
-     * @param $periodIdx int
-     * @param $dayIdx int
-     * @param $weekIdx int
-     * @param $userSchedule schedule
+     * @param $periodidx int
+     * @param $dayidx int
+     * @param $weekidx int
+     * @param $userschedule schedule
      * @return day_info
      */
-    private static function get_today_groupped_free_periods($periodIdx,
-        $dayIdx, $weekIdx, $userSchedule) {
+    private static function get_today_groupped_free_periods($periodidx,
+        $dayidx, $weekidx, $userschedule) {
 
-        list($dayBeginPeriodIdx, $dayBeginDayIdx, $dayEndPeriodIdx, $dayEndDayIdx) =
-            self::get_today_day_ranges($periodIdx, $dayIdx, $userSchedule);
+        list($daybeginperiodidx, $daybegindayidx, $dayendperiodidx, $dayenddayidx) =
+            self::get_today_day_ranges($periodidx, $dayidx, $userschedule);
 
-        $dayInfo = new day_info($dayBeginDayIdx, $dayBeginPeriodIdx, $dayEndDayIdx, $dayEndPeriodIdx, $weekIdx);
-        $curGroupIdx = 0;
-        $curPeriodIdx = $dayBeginPeriodIdx;
-        $curDayIdx = $dayBeginDayIdx;
-        $lastPeriodWasFree = false;
-        $totalFreeHoursInCurrentDay = 0;
+        $dayinfo = new day_info($daybegindayidx, $daybeginperiodidx, $dayenddayidx, $dayendperiodidx, $weekidx);
+        $curgroupidx = 0;
+        $curperiodidx = $daybeginperiodidx;
+        $curdayidx = $daybegindayidx;
+        $lastperiodwasfree = false;
+        $totalfreehoursincurrentday = 0;
 
-        $scheduleStatuses = $userSchedule->get_statuses();
-        $readinesses = $userSchedule->get_readinesses();
+        $schedulestatuses = $userschedule->get_statuses();
+        $readinesses = $userschedule->get_readinesses();
 
         while (true) {
-            $tempStatus = $scheduleStatuses[$curDayIdx][$curPeriodIdx];
+            $tempstatus = $schedulestatuses[$curdayidx][$curperiodidx];
 
-            if ($tempStatus == mod_personalschedule_config::statusFree) {
-                if (!$dayInfo->is_group_exists($curGroupIdx)) {
-                    $dayInfo->add_free_period_group($curGroupIdx, new day_free_period_group($curPeriodIdx));
+            if ($tempstatus == mod_personalschedule_config::statusfree) {
+                if (!$dayinfo->is_group_exists($curgroupidx)) {
+                    $dayinfo->add_free_period_group($curgroupidx, new day_free_period_group($curperiodidx));
                 }
 
-                $dayInfo->get_group($curGroupIdx)->add_period(
+                $dayinfo->get_group($curgroupidx)->add_period(
                     new day_free_period_group_element(
-                        $curPeriodIdx, self::personal_items_get_sin_wave($totalFreeHoursInCurrentDay),
-                        $readinesses[$curPeriodIdx]));
+                        $curperiodidx, self::personal_items_get_sin_wave($totalfreehoursincurrentday),
+                        $readinesses[$curperiodidx]));
 
-                $lastPeriodWasFree = true;
-                $totalFreeHoursInCurrentDay++;
+                $lastperiodwasfree = true;
+                $totalfreehoursincurrentday++;
             } else {
-                if ($lastPeriodWasFree) {
-                    $curGroupIdx++;
+                if ($lastperiodwasfree) {
+                    $curgroupidx++;
                 }
-                $lastPeriodWasFree = false;
+                $lastperiodwasfree = false;
             }
 
-            self::increment_period_idx($curPeriodIdx, $curDayIdx);
+            self::increment_period_idx($curperiodidx, $curdayidx);
 
-            if ($curPeriodIdx == $dayEndPeriodIdx && $curDayIdx == $dayEndDayIdx) {
+            if ($curperiodidx == $dayendperiodidx && $curdayidx == $dayenddayidx) {
                 break;
             }
         }
-        return $dayInfo;
+        return $dayinfo;
     }
 
     /**
-     * @param array $cmProps
-     * @param $activityId int
+     * @param array $cmprops
+     * @param $activityid int
      * @param $attempts int
      * @param $activity category_learning_object
-     * @param $userAge int
+     * @param $userage int
      * @return bool
      */
     private static function calculate_and_fill_duration_to_object(
-        array $cmProps,
-        $activityId,
+        array $cmprops,
+        $activityid,
         $attempts,
         &$activity,
-        $userAge
+        $userage
     ) {
-        $props = $cmProps[$activityId];
-        $originDurationInSeconds = $props->duration;
+        $props = $cmprops[$activityid];
+        $origindurationinseconds = $props->duration;
         if ($attempts == 0) {
-            $newDuration = $originDurationInSeconds;
+            $newduration = $origindurationinseconds;
         } else {
-            $newDuration = $originDurationInSeconds - ($attempts / $originDurationInSeconds);
+            $newduration = $origindurationinseconds - ($attempts / $origindurationinseconds);
         }
 
-        if ($newDuration <= 0) {
+        if ($newduration <= 0) {
             return false;
         }
 
-        $activity->totalDurationSec = $originDurationInSeconds;
+        $activity->totaldurationsec = $origindurationinseconds;
 
-        list($memoryDuration, $maximumPossibleMemoryDuration) = self::get_memory_duration_in_seconds_by_age($userAge);
+        list($memoryduration, $maximumpossiblememoryduration) = self::get_memory_duration_in_seconds_by_age($userage);
 
-        $activity->modifiedDurationSec = $newDuration +
-            ($newDuration * ($maximumPossibleMemoryDuration - $memoryDuration));
+        $activity->modifieddurationsec = $newduration +
+            ($newduration * ($maximumpossiblememoryduration - $memoryduration));
 
         return true;
     }
 
     /**
-     * @param $dayBeginPeriodIdx
-     * @param $dayBeginDayIdx
+     * @param $daybeginperiodidx
+     * @param $daybegindayidx
      */
-    private static function decrement_period_idx(&$dayBeginPeriodIdx, &$dayBeginDayIdx) {
-        if ($dayBeginPeriodIdx == mod_personalschedule_config::periodIndexMin) {
-            $dayBeginPeriodIdx = mod_personalschedule_config::periodIndexMax;
-            $dayBeginDayIdx--;
+    private static function decrement_period_idx(&$daybeginperiodidx, &$daybegindayidx) {
+        if ($daybeginperiodidx == mod_personalschedule_config::periodindexmin) {
+            $daybeginperiodidx = mod_personalschedule_config::periodindexmax;
+            $daybegindayidx--;
         } else {
-            $dayBeginPeriodIdx--;
+            $daybeginperiodidx--;
         }
 
 
-        if ($dayBeginDayIdx < mod_personalschedule_config::dayIndexMin) {
-            $dayBeginDayIdx = mod_personalschedule_config::dayIndexMax;
+        if ($daybegindayidx < mod_personalschedule_config::dayindexmin) {
+            $daybegindayidx = mod_personalschedule_config::dayindexmax;
         }
     }
 
     /**
-     * @param $dayEndPeriodIdx
-     * @param $dayEndDayIdx
+     * @param $dayendperiodidx
+     * @param $dayenddayidx
      */
-    private static function increment_period_idx(&$dayEndPeriodIdx, &$dayEndDayIdx) {
-        if ($dayEndPeriodIdx == mod_personalschedule_config::periodIndexMax) {
-            $dayEndPeriodIdx = mod_personalschedule_config::periodIndexMin;
+    private static function increment_period_idx(&$dayendperiodidx, &$dayenddayidx) {
+        if ($dayendperiodidx == mod_personalschedule_config::periodindexmax) {
+            $dayendperiodidx = mod_personalschedule_config::periodindexmin;
 
-            if ($dayEndDayIdx == mod_personalschedule_config::dayIndexMax) {
-                $dayEndDayIdx = mod_personalschedule_config::dayIndexMin;
+            if ($dayenddayidx == mod_personalschedule_config::dayindexmax) {
+                $dayenddayidx = mod_personalschedule_config::dayindexmin;
             } else {
-                $dayEndDayIdx++;
+                $dayenddayidx++;
             }
         } else {
-            $dayEndPeriodIdx++;
+            $dayendperiodidx++;
         }
 
     }
@@ -413,68 +433,68 @@ class mod_personalschedule_proposer {
 
     /**
      * Insert proposed elements into the cache (database table).
-     * @param int $userId User ID.
-     * @param int $personalscheduleId Personalization module instance ID.
-     * @param day_info $dayInfo Information about the day, in which the proposed elements were formed.
+     * @param int $userid User ID.
+     * @param int $personalscheduleid Personalization module instance ID.
+     * @param day_info $dayinfo Information about the day, in which the proposed elements were formed.
      * @param proposed_object[] $elements Proposed elements.
      * @throws coding_exception
      * @throws dml_exception
      */
-    private static function insert_proposed_elements($userId, $personalscheduleId, $dayInfo, $elements) {
+    private static function insert_proposed_elements($userid, $personalscheduleid, $dayinfo, $elements) {
         global $DB;
 
         $delete_conditions = array();
-        $delete_conditions["userid"] = $userId;
-        $delete_conditions["personalschedule"] = $personalscheduleId;
-        $delete_conditions["daybegindayidx"] = $dayInfo->dayBeginDayIdx;
-        $delete_conditions["daybeginperiodidx"] = $dayInfo->dayBeginPeriodIdx;
+        $delete_conditions["userid"] = $userid;
+        $delete_conditions["personalschedule"] = $personalscheduleid;
+        $delete_conditions["daybegindayidx"] = $dayinfo->daybegindayidx;
+        $delete_conditions["daybeginperiodidx"] = $dayinfo->daybeginperiodidx;
 
-        /** @var $itemsToInsert stdClass[] */
-        $itemsToInsert = array();
+        /** @var $itemstoinsert stdClass[] */
+        $itemstoinsert = array();
 
-        foreach ($elements as $proposedActivityObject) {
-            $itemToInsert = new stdClass();
+        foreach ($elements as $proposedactivityobject) {
+            $itemtoinsert = new stdClass();
 
-            $itemToInsert->userid = $userId;
-            $itemToInsert->personalschedule = $personalscheduleId;
+            $itemtoinsert->userid = $userid;
+            $itemtoinsert->personalschedule = $personalscheduleid;
 
-            $itemToInsert->daybegindayidx = $dayInfo->dayBeginDayIdx;
-            $itemToInsert->daybeginperiodidx = $dayInfo->dayBeginPeriodIdx;
+            $itemtoinsert->daybegindayidx = $dayinfo->daybegindayidx;
+            $itemtoinsert->daybeginperiodidx = $dayinfo->daybeginperiodidx;
 
-            $itemToInsert->begindayidx = $dayInfo->dayBeginDayIdx;
-            $itemToInsert->beginperiodidx = $proposedActivityObject->periodIdxBegin;
+            $itemtoinsert->begindayidx = $dayinfo->daybegindayidx;
+            $itemtoinsert->beginperiodidx = $proposedactivityobject->periodidxbegin;
 
-            $itemToInsert->modifieddurationsec = $proposedActivityObject->modifiedDurationSec;
+            $itemtoinsert->modifieddurationsec = $proposedactivityobject->modifieddurationsec;
 
-            $itemToInsert->weekidx = $dayInfo->weekIdx;
+            $itemtoinsert->weekidx = $dayinfo->weekidx;
 
-            if ($proposedActivityObject instanceof proposed_relax_object) {
-                $itemToInsert->cm = null;
-                $itemToInsert->actions = null;
-            } else if ($proposedActivityObject instanceof  proposed_activity_object) {
-                $itemToInsert->cm = $proposedActivityObject->activity->id;
-                $itemToInsert->actions = $proposedActivityObject->actions;
+            if ($proposedactivityobject instanceof proposed_relax_object) {
+                $itemtoinsert->cm = null;
+                $itemtoinsert->actions = null;
+            } else if ($proposedactivityobject instanceof  proposed_activity_object) {
+                $itemtoinsert->cm = $proposedactivityobject->activity->id;
+                $itemtoinsert->actions = $proposedactivityobject->actions;
             }
 
-            $itemsToInsert[] = $itemToInsert;
+            $itemstoinsert[] = $itemtoinsert;
         }
 
-        $DB->insert_records("personalschedule_proposes", $itemsToInsert);
+        $DB->insert_records("personalschedule_proposes", $itemstoinsert);
     }
 
     /**
      *
-     * @param int $periodIdx
-     * @param int $dayIdx
-     * @param schedule $userSchedule
+     * @param int $periodidx
+     * @param int $dayidx
+     * @param schedule $userschedule
      * @return array
      */
-    private static function get_today_day_ranges($periodIdx, $dayIdx, $userSchedule) {
-        $dayBeginPeriodIdx = $periodIdx;
-        $dayBeginDayIdx = $dayIdx;
+    private static function get_today_day_ranges($periodidx, $dayidx, $userschedule) {
+        $daybeginperiodidx = $periodidx;
+        $daybegindayidx = $dayidx;
 
-        $dayEndPeriodIdx = $periodIdx;
-        $dayEndDayIdx = $dayIdx;
+        $dayendperiodidx = $periodidx;
+        $dayenddayidx = $dayidx;
 
         /*
          * Firstly, we should know when the current day began for the user.
@@ -482,237 +502,246 @@ class mod_personalschedule_proposer {
          * Then we will go forward to find the end of the day. It's, again, a period with SLEEP status.
          */
 
-        $currentIteration = 0;
-        $maxIterations =
-            mod_personalschedule_config::dayIndexMax *
-            mod_personalschedule_config::periodIndexMax;
+        $currentiteration = 0;
+        $maxiterations =
+            mod_personalschedule_config::dayindexmax *
+            mod_personalschedule_config::periodindexmax;
 
-        $scheduleStatuses = $userSchedule->get_statuses();
-        $startedInSleepPeriod =
-            $scheduleStatuses[$dayBeginDayIdx][$dayBeginPeriodIdx] == mod_personalschedule_config::statusSleep;
+        $schedulestatuses = $userschedule->get_statuses();
+        $startedinsleepperiod =
+            $schedulestatuses[$daybegindayidx][$daybeginperiodidx] == mod_personalschedule_config::statussleep;
 
         while (true) {
-            $currentIteration++;
-            if ($currentIteration > $maxIterations) {
-                $dayBeginDayIdx = $dayIdx;
-                $dayBeginPeriodIdx =  mod_personalschedule_config::periodIndexMin;
+            $currentiteration++;
+            if ($currentiteration > $maxiterations) {
+                $daybegindayidx = $dayidx;
+                $daybeginperiodidx =  mod_personalschedule_config::periodindexmin;
                 break;
             }
 
-            $tempStatus = $scheduleStatuses[$dayBeginDayIdx][$dayBeginPeriodIdx];
+            $tempstatus = $schedulestatuses[$daybegindayidx][$daybeginperiodidx];
 
-            if ($startedInSleepPeriod) {
-                if ($tempStatus != mod_personalschedule_config::statusSleep) {
+            if ($startedinsleepperiod) {
+                if ($tempstatus != mod_personalschedule_config::statussleep) {
                     break;
                 }
             } else {
-                if ($tempStatus == mod_personalschedule_config::statusSleep) {
-                    self::increment_period_idx($dayBeginPeriodIdx, $dayBeginDayIdx);
+                if ($tempstatus == mod_personalschedule_config::statussleep) {
+                    self::increment_period_idx($daybeginperiodidx, $daybegindayidx);
                     break;
                 }
             }
 
-            if ($startedInSleepPeriod) {
-                self::increment_period_idx($dayBeginPeriodIdx, $dayBeginDayIdx);
+            if ($startedinsleepperiod) {
+                self::increment_period_idx($daybeginperiodidx, $daybegindayidx);
             } else {
-                self::decrement_period_idx($dayBeginPeriodIdx, $dayBeginDayIdx);
+                self::decrement_period_idx($daybeginperiodidx, $daybegindayidx);
             }
         }
 
-        if ($startedInSleepPeriod) {
-            $dayEndDayIdx = $dayBeginDayIdx;
-            $dayEndPeriodIdx = $dayBeginPeriodIdx;
+        if ($startedinsleepperiod) {
+            $dayenddayidx = $daybegindayidx;
+            $dayendperiodidx = $daybeginperiodidx;
         }
 
-        $currentIteration = 0;
+        $currentiteration = 0;
         while (true) {
-            $currentIteration++;
-            if ($currentIteration > $maxIterations) {
-                $dayEndDayIdx = $dayIdx;
-                $dayEndPeriodIdx = mod_personalschedule_config::periodIndexMin;
+            $currentiteration++;
+            if ($currentiteration > $maxiterations) {
+                $dayenddayidx = $dayidx;
+                $dayendperiodidx = mod_personalschedule_config::periodindexmin;
                 break;
             }
 
-            $tempStatus = $scheduleStatuses[$dayEndDayIdx][$dayEndPeriodIdx];
+            $tempstatus = $schedulestatuses[$dayenddayidx][$dayendperiodidx];
 
-            if ($tempStatus == mod_personalschedule_config::statusSleep) {
-                self::decrement_period_idx($dayEndPeriodIdx, $dayEndDayIdx);
+            if ($tempstatus == mod_personalschedule_config::statussleep) {
+                self::decrement_period_idx($dayendperiodidx, $dayenddayidx);
                 break;
             }
 
-            self::increment_period_idx($dayEndPeriodIdx, $dayEndDayIdx);
+            self::increment_period_idx($dayendperiodidx, $dayenddayidx);
         }
 
-        return array($dayBeginPeriodIdx, $dayBeginDayIdx, $dayEndPeriodIdx, $dayEndDayIdx);
+        return array($daybeginperiodidx, $daybegindayidx, $dayendperiodidx, $dayenddayidx);
     }
 
     /**
-     * Tries to pick up learning elements from the categoriesObjects and
-     * fit them into current dayInfo.
-     * @param day_info $dayInfo Information about the day, in which the proposed elements should be generated.
-     * @param category_object[] $categoriesObjects Categories with the activities and their information.
+     * Tries to pick up learning elements from the categoriesobjects and
+     * fit them into current dayinfo.
+     * @param day_info $dayinfo Information about the day, in which the proposed elements should be generated.
+     * @param category_object[] $categoriesobjects Categories with the activities and their information.
      * @return proposed_object[] Generated elements.
      */
-    private static function generate_proposed_elements($dayInfo, $categoriesObjects) {
-        /** @var proposed_object[] $proposedElements */
-        $proposedActivities = array();
-        $totalModifiedFreeHoursInCurrentDay = 0;
+    private static function generate_proposed_elements($dayinfo, $categoriesobjects) {
+        /** @var proposed_object[] $proposedelements */
+        $proposedactivities = array();
+        $totalmodifiedfreehoursincurrentday = 0;
 
-        /** @var category_learning_object[] $proposedObjects */
-        $proposedObjects = array();
+        /** @var category_learning_object[] $proposedobjects */
+        $proposedobjects = array();
 
-        foreach ($dayInfo->freePeriodGroups as $dayGroup) {
-            $groupDurationInHours = $dayGroup->get_modified_duration_in_hours();
-            $totalModifiedFreeHoursInCurrentDay += $groupDurationInHours;
-            $freeHoursLeft = $groupDurationInHours;
-            $lastPeriodIdx = $dayGroup->periodIdxBegin;
-            foreach ($categoriesObjects as $categoryObject) {
-                $catDurationInHours = $categoryObject->get_modified_duration_in_hours();
-                if ($catDurationInHours <= $freeHoursLeft) {
-                    $freeHoursLeft -= $catDurationInHours;
+        foreach ($dayinfo->freeperiodgroups as $daygroup) {
+            $groupdurationinhours = $daygroup->get_modified_duration_in_hours();
+            $totalmodifiedfreehoursincurrentday += $groupdurationinhours;
+            $freehoursleft = $groupdurationinhours;
+            $lastperiodidx = $daygroup->periodidxbegin;
+            foreach ($categoriesobjects as $categoryobject) {
+                $catdurationinhours = $categoryobject->get_modified_duration_in_hours();
+                if ($catdurationinhours <= $freehoursleft) {
+                    $freehoursleft -= $catdurationinhours;
 
-                    foreach (array_merge($categoryObject->leftLectures, $categoryObject->leftPractices) as $learningObject) {
-                        $proposedObjects[$learningObject->activity->id] = $learningObject;
+                    foreach (array_merge($categoryobject->leftlectures, $categoryobject->leftpractices) as $learningobject) {
+                        $proposedobjects[$learningobject->activity->id] = $learningobject;
                     }
 
                     continue;
                 }
             }
 
-            usort($categoriesObjects, array("mod_personalschedule_proposer", "categories_sort_by_duration_asc"));
+            usort($categoriesobjects, array("mod_personalschedule_proposer", "categories_sort_by_duration_asc"));
 
-            foreach ($categoriesObjects as $categoryObjects) {
-                foreach ($categoryObjects->leftLectures as $lecture) {
-                    $activityDurationInHours = $lecture->get_modified_duration_in_hours();
-                    if ($activityDurationInHours <= $freeHoursLeft) {
-                        if (key_exists($lecture->activity->id, $proposedObjects)) {
+            foreach ($categoriesobjects as $categoryobjects) {
+                foreach ($categoryobjects->leftlectures as $lecture) {
+                    $activitydurationinhours = $lecture->get_modified_duration_in_hours();
+                    if ($activitydurationinhours <= $freehoursleft) {
+                        if (key_exists($lecture->activity->id, $proposedobjects)) {
                             continue;
                         }
-                        $freeHoursLeft -= $activityDurationInHours;
-                        $proposedObjects[$lecture->activity->id] = $lecture;
+                        $freehoursleft -= $activitydurationinhours;
+                        $proposedobjects[$lecture->activity->id] = $lecture;
 
                         continue;
                     }
                 }
             }
 
-            $relaxItemsCount = $freeHoursLeft * 60 / mod_personalschedule_config::minimumRelaxTimeInMinutes;
-            $relaxItemsPeriodicity = 0;
-            if ($relaxItemsCount >= 1) {
-                $relaxItemsPeriodicity = floor(count($proposedObjects) / $relaxItemsCount);
+            $relaxitemscount = $freehoursleft * 60 / mod_personalschedule_config::minimumrelaxtimeinminutes;
+            $relaxitemsperiodicity = 0;
+            if ($relaxitemscount >= 1) {
+                $relaxitemsperiodicity = floor(count($proposedobjects) / $relaxitemscount);
             }
 
-            $currentIndex = 0;
-            $currentRelaxIndex = -1;
-            foreach ($proposedObjects as $proposedObject) {
-                if ($currentIndex != 0 && $relaxItemsPeriodicity >= 1 && ($currentIndex % $relaxItemsPeriodicity == 0)) {
-                    $proposedActivities[$currentRelaxIndex--] = new proposed_relax_object(
-                        60 * mod_personalschedule_config::minimumRelaxTimeInMinutes,
-                        $lastPeriodIdx, $dayInfo->dayBeginDayIdx, $dayInfo->dayBeginPeriodIdx, $dayInfo->weekIdx);
-                    $lastPeriodIdx += mod_personalschedule_config::minimumRelaxTimeInMinutes / 60;
+            $currentindex = 0;
+            $currentrelaxindex = -1;
+            foreach ($proposedobjects as $proposedobject) {
+                if ($currentindex != 0 && $relaxitemsperiodicity >= 1 && ($currentindex % $relaxitemsperiodicity == 0)) {
+                    $proposedactivities[$currentrelaxindex--] = new proposed_relax_object(
+                        60 * mod_personalschedule_config::minimumrelaxtimeinminutes,
+                        $lastperiodidx, $dayinfo->daybegindayidx, $dayinfo->daybeginperiodidx, $dayinfo->weekidx);
+                    $lastperiodidx += mod_personalschedule_config::minimumrelaxtimeinminutes / 60;
                 }
 
-                $proposedActivities[$proposedObject->activity->id] =
-                    new proposed_activity_object($proposedObject->activity,
-                        $proposedObject->modifiedDurationSec,
-                        $lastPeriodIdx, $proposedObject->actions,
-                        $dayInfo->dayBeginDayIdx, $dayInfo->dayBeginPeriodIdx, $dayInfo->weekIdx);
-                $lastPeriodIdx += $proposedObject->get_modified_duration_in_hours();
+                $proposedactivities[$proposedobject->activity->id] =
+                    new proposed_activity_object($proposedobject->activity,
+                        $proposedobject->modifieddurationsec,
+                        $lastperiodidx, $proposedobject->actions,
+                        $dayinfo->daybegindayidx, $dayinfo->daybeginperiodidx, $dayinfo->weekidx);
+                $lastperiodidx += $proposedobject->get_modified_duration_in_hours();
 
-                $currentIndex++;
+                $currentindex++;
             }
         }
-        return $proposedActivities;
+        return $proposedactivities;
     }
 
 
     /**
-     * Helper method for sorting the category_objects by modifiedDurationSec descending
+     * Helper method for sorting the category_objects by modifieddurationsec descending
      * @param $a category_object
      * @param $b category_object
      * @return int
      */
     private static function categories_sort_by_duration_desc($a, $b) {
-        if ($a->modifiedDurationSec == $b->modifiedDurationSec) return 0;
-        return ($a->modifiedDurationSec < $b->modifiedDurationSec) ? 1 : -1;
+        if ($a->modifieddurationsec == $b->modifieddurationsec) return 0;
+        return ($a->modifieddurationsec < $b->modifieddurationsec) ? 1 : -1;
     }
 
     /**
-     * Helper method for sorting the category_objects by modifiedDurationSec ascending
+     * Helper method for sorting the category_objects by modifieddurationsec ascending
      * @param $a category_object
      * @param $b category_object
      * @return int
      */
-    private static function categories_sort_by_duration_asc($a, $b)
-    {
-        if ($a->modifiedDurationSec == $b->modifiedDurationSec) return 0;
-        return ($a->modifiedDurationSec < $b->modifiedDurationSec) ? -1 : 1;
+    private static function categories_sort_by_duration_asc($a, $b) {
+        if ($a->modifieddurationsec == $b->modifieddurationsec) return 0;
+        return ($a->modifieddurationsec < $b->modifieddurationsec) ? -1 : 1;
+    }
+
+
+    /**
+     * @param category_learning_object $a
+     * @param category_learning_object $b
+     */
+    private static function elements_sort_by_weight_desc($a, $b) {
+   /*     if ($a->modifieddurationsec == $b->modifieddurationsec) return 0;
+        return ($a->modifieddurationsec < $b->modifieddurationsec) ? 1 : -1;*/
     }
 
     /**
      * Generates proposed learning elements for the
      * learner. If the proposed elements already were generated (for the current time info), then
      * returns cached items from the database.
-     * @param int $personalscheduleId Personalization module instance ID.
-     * @param int $userId User ID.
-     * @param int $courseId Course ID.
-     * @param int $dayIdx Current day index.
-     * @param int $periodIdx Current period index.
-     * @param int $weekIdx Current week index.
-     * @param user_view_info[] $userActionsInfo Array with information about user interactions with each course's activity.
+     * @param int $personalscheduleid Personalization module instance ID.
+     * @param int $userid User ID.
+     * @param int $courseid Course ID.
+     * @param int $dayidx Current day index.
+     * @param int $periodidx Current period index.
+     * @param int $weekidx Current week index.
+     * @param user_view_info[] $useractionsinfo Array with information about user interactions with each course's activity.
      * @return proposed_object[] Generated elements.
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
     public static function personal_get_items(
-        $personalscheduleId, $userId, $courseId, $dayIdx, $periodIdx, $weekIdx, $userActionsInfo) {
+        $personalscheduleid, $userid, $courseid, $dayidx, $periodidx, $weekidx, $useractionsinfo) {
 
-        $userAge = personalschedule_get_user_age($personalscheduleId, $userId);
+        $userage = personalschedule_get_user_age($personalscheduleid, $userid);
 
-        $categoriesObjects = self::get_categories($personalscheduleId,
-            $userId, $courseId, $userAge, $userActionsInfo);
+        $categoriesobjects = self::get_categories($personalscheduleid,
+            $userid, $courseid, $userage, $useractionsinfo);
 
-        $schedule = personalschedule_get_user_schedule($personalscheduleId, $userId);
+        $schedule = personalschedule_get_user_schedule($personalscheduleid, $userid);
 
         // Groups the current day by free periods.
-        $dayInfo = self::get_today_groupped_free_periods($periodIdx, $dayIdx, $weekIdx, $schedule);
+        $dayinfo = self::get_today_groupped_free_periods($periodidx, $dayidx, $weekidx, $schedule);
 
-        $cachedProposedActivities =
-            self::get_all_proposed_items_from_cache($personalscheduleId, $courseId, $userId, $dayInfo);
+        $cachedproposedactivities =
+            self::get_all_proposed_items_from_cache($personalscheduleid, $courseid, $userid, $dayinfo);
 
-        $proposedActivitiesAlreadyExist = count($cachedProposedActivities) > 0;
-        if ($proposedActivitiesAlreadyExist) {
-            $proposedActivities = $cachedProposedActivities;
+        $proposedactivitiesalreadyexist = count($cachedproposedactivities) > 0;
+        if ($proposedactivitiesalreadyexist) {
+            $proposedactivities = $cachedproposedactivities;
         } else {
-            $proposedActivities = self::generate_proposed_elements($dayInfo, $categoriesObjects);
-            self::insert_proposed_elements($userId, $personalscheduleId, $dayInfo, $proposedActivities);
+            $proposedactivities = self::generate_proposed_elements($dayinfo, $categoriesobjects);
+            self::insert_proposed_elements($userid, $personalscheduleid, $dayinfo, $proposedactivities);
         }
 
-        return $proposedActivities;
+        return $proposedactivities;
     }
 
 
     /**
      * Returns period index, which is based on the current time.
-     * @param int $currentUnixTime Current UNIX time.
+     * @param int $currentunixtime Current UNIX time.
      * @return int|false Period index. If a non-numeric value is used for
      * timestamp, false is returned.
      */
-    public static function personal_items_get_period_idx($currentUnixTime) {
-        $hourMin = date('G', $currentUnixTime);
-        return $hourMin;
+    public static function personal_items_get_period_idx($currentunixtime) {
+        $hourmin = date('G', $currentunixtime);
+        return $hourmin;
     }
 
     /**
      * Returns day index, which is based on the current time.
-     * @param int $currentUnixTime Current UNIX time.
+     * @param int $currentunixtime Current UNIX time.
      * @return int|false Day index. If a non-numeric value is used for
      * timestamp, false is returned.
      */
-    public static function personal_items_get_day_idx($currentUnixTime) {
+    public static function personal_items_get_day_idx($currentunixtime) {
         // From 0 (sunday) to 6 (saturday).
-        $day = date('w', $currentUnixTime);
+        $day = date('w', $currentunixtime);
 
         // Converting to module format (sunday became seventh day).
         if ($day == 0) $day = 7;
@@ -720,39 +749,57 @@ class mod_personalschedule_proposer {
     }
 
     /**
+     * Returns timestamp based on current user timezone.
+     * Calculated like this: time() + (USER_TIMEZONE_OFFSET - SERVER_TIMEZONE_OFFSET).
+     * @return int Timestamp based on current user timezone.
+     */
+    public static function get_user_current_timestamp() {
+        try {
+            $datetime = new Datetime('now', core_date::get_server_timezone_object());
+        } catch (Exception $e) {
+            return time();
+        }
+        $servertzoffset = $datetime->getoffset();
+        $datetime->settimezone(core_date::get_user_timezone_object());
+        $usertzoffset = $datetime->getoffset();
+        $tzoffset = $usertzoffset - $servertzoffset;
+        return $datetime->gettimestamp() + $tzoffset;
+    }
+
+    /**
      * Returns proposed user items from cache (database table).
-     * @param int $personalscheduleId Personalization module instance id.
-     * @param int $courseId Course ID.
-     * @param int $userId User ID.
-     * @param day_info $dayInfo If not null, then tries to return items from the specific day.
+     * @param int $personalscheduleid Personalization module instance id.
+     * @param int $courseid Course ID.
+     * @param int $userid User ID.
+     * @param day_info $dayinfo If not null, then tries to return items from the specific day.
      * @return proposed_object[] Array with proposed user items.
      */
-    public static function get_all_proposed_items_from_cache($personalscheduleId, $courseId, $userId, $dayInfo = null) {
+    public static function get_all_proposed_items_from_cache($personalscheduleid, $courseid, $userid, $dayinfo = null) {
         global $DB;
 
         $conditions = array();
-        $conditions["userid"] = $userId;
-        $conditions["personalschedule"] = $personalscheduleId;
+        $conditions["userid"] = $userid;
+        $conditions["personalschedule"] = $personalscheduleid;
 
-        if ($dayInfo != null) {
-            $conditions["daybegindayidx"] = $dayInfo->dayBeginDayIdx;
-            $conditions["daybeginperiodidx"] = $dayInfo->dayBeginPeriodIdx;
-            $conditions["weekidx"] = $dayInfo->weekIdx;
+        if ($dayinfo != null) {
+            $conditions["daybegindayidx"] = $dayinfo->daybegindayidx;
+            $conditions["daybeginperiodidx"] = $dayinfo->daybeginperiodidx;
+            $conditions["weekidx"] = $dayinfo->weekidx;
         }
 
-        /** @var $proposedElements proposed_object[] */
-        $proposedElements = array();
+        /** @var $proposedelements proposed_object[] */
+        $proposedelements = array();
 
         try {
             $records = $DB->get_records("personalschedule_proposes", $conditions);
 
             if (count($records) > 0) {
-                $modinfo = get_fast_modinfo($courseId);
+                $modinfo = get_fast_modinfo($courseid);
             }
 
             foreach ($records as $record) {
                 if ($record->cm == null || $record->actions == null) {
-                    $proposedActivityObject = new proposed_relax_object($record->modifieddurationsec,
+                    $proposedactivityobject = new proposed_relax_object($record->modifieddurationsec,
                         $record->beginperiodidx, $record->daybegindayidx, $record->daybeginperiodidx,
                         $record->weekidx);
                 } else {
@@ -762,17 +809,17 @@ class mod_personalschedule_proposer {
                         continue;
                     }
 
-                    $proposedActivityObject = new mod_personalschedule\items\proposed_activity_object($cm, $record->modifieddurationsec,
+                    $proposedactivityobject = new mod_personalschedule\items\proposed_activity_object($cm, $record->modifieddurationsec,
                         $record->beginperiodidx, $record->actions, $record->daybegindayidx, $record->daybeginperiodidx,
                         $record->weekidx);
                 }
 
-                $proposedElements[] = $proposedActivityObject;
+                $proposedelements[] = $proposedactivityobject;
             }
         } catch (dml_exception $e) {
         } catch (moodle_exception $e) {
         } finally {
-            return $proposedElements;
+            return $proposedelements;
         }
     }
 
@@ -781,11 +828,11 @@ class mod_personalschedule_proposer {
      * course's activities. The interactions number based on data from table "logstore_standard_log".
      * Also, for the mod_quiz activities there is number of test attempts, which is calculated using info
      * from Grades API.
-     * @param int $userId: User ID.
-     * @param int $courseId: Course ID.
+     * @param int $userid: User ID.
+     * @param int $courseid: Course ID.
      * @return mod_personalschedule\items\user_view_info[] Array with user' view info items.
      */
-    public static function get_user_views_info($userId, $courseId) {
+    public static function get_user_views_info($userid, $courseid) {
         global $DB;
 
         $sql = "SELECT cm.id as 'cmid', m.name, cm.instance, COUNT(l.id) AS 'actions'
@@ -797,144 +844,144 @@ WHERE  l.userid = :userid
     AND l.contextlevel = :contextlevel
 GROUP BY l.userid, l.contextinstanceid";
 
-        /** @var user_view_info[] $userViewsInfo */
-        $userViewsInfo = array();
+        /** @var user_view_info[] $userviewsinfo */
+        $userviewsinfo = array();
         try {
             $results = $DB->get_records_sql($sql, array(
-                "userid" => $userId,
-                "courseid" => $courseId,
+                "userid" => $userid,
+                "courseid" => $courseid,
                 "contextlevel" => CONTEXT_MODULE,
             ));
             if ($results == false) {
-                return $userViewsInfo;
+                return $userviewsinfo;
             }
 
             foreach ($results as $result) {
-                $functionName = "mod_personalschedule_proposer::get_".$result->name."_user_view_info";
-                if (is_callable($functionName)) {
-                    $userViewInfo = call_user_func(
-                        $functionName, $userId, $courseId, $result->instance, $result->cmid, $result->actions, $result->cmid);
+                $functionname = "mod_personalschedule_proposer::get_".$result->name."_user_view_info";
+                if (is_callable($functionname)) {
+                    $userviewinfo = call_user_func(
+                        $functionname, $userid, $courseid, $result->instance, $result->cmid, $result->actions, $result->cmid);
                 } else {
-                    $userViewInfo = new user_view_info($result->cmid, $result->actions);
+                    $userviewinfo = new user_view_info($result->cmid, $result->actions);
                 }
 
-                $userViewsInfo[$result->cmid] = $userViewInfo;
+                $userviewsinfo[$result->cmid] = $userviewinfo;
             }
         } catch (dml_exception $ex) {
-            return $userViewsInfo;
+            return $userviewsinfo;
         }
-        return $userViewsInfo;
+        return $userviewsinfo;
     }
 
 
     /**
      * Returns user_view_info for the mod_quiz activity.
      * Called implicitly by call_user_func(...) in get_user_views_info(...).
-     * @param int $userId User ID.
-     * @param int $courseId Course ID.
+     * @param int $userid User ID.
+     * @param int $courseid Course ID.
      * @param int $instance Activity Instance ID.
      * @param int $actions User's interactions count with this activity (from logstore).
      * @param int $id ID from logstore.
      * @return user_view_info
      */
-    private static function get_quiz_user_view_info($userId, $courseId, $instance, $cmid, $actions, $id) {
+    private static function get_quiz_user_view_info($userid, $courseid, $instance, $cmid, $actions, $id) {
         if (!is_callable("quiz_get_user_attempts")) {
             //TODO: Show error message to admin.
             return new user_practice_info($id, 1, true, false);
         }
 
-        /** @var array $quizAttempts */
-        $quizAttempts = quiz_get_user_attempts($instance, $userId, 'finished', true);
-        $attempts = count($quizAttempts);
-        if (count($quizAttempts) >= 1) {
-            $quizAttempt = reset($quizAttempts);
-            if ($quizAttempt->sumgrades == null) {
-                $notRated = true;
-                $isPassed = $actions != count($quizAttempts);
+        /** @var array $quizattempts */
+        $quizattempts = quiz_get_user_attempts($instance, $userid, 'finished', true);
+        $attempts = count($quizattempts);
+        if (count($quizattempts) >= 1) {
+            $quizattempt = reset($quizattempts);
+            if ($quizattempt->sumgrades == null) {
+                $notrated = true;
+                $ispassed = $actions != count($quizattempts);
             } else {
-                $notRated = false;
+                $notrated = false;
 
-                $gradingInfo = grade_get_grades($courseId, 'mod', 'quiz',
+                $gradinginfo = grade_get_grades($courseid, 'mod', 'quiz',
                     $instance);
 
-                $quizGradesInfo = reset($gradingInfo->items);
-                $percentOfRightAnswers = $quizAttempt->sumgrades / $quizGradesInfo->grademax * 100;
-                $isPassed = $percentOfRightAnswers >= mod_personalschedule_config::minPercentToPass;
+                $quizgradesinfo = reset($gradinginfo->items);
+                $percentofrightanswers = $quizattempt->sumgrades / $quizgradesinfo->grademax * 100;
+                $ispassed = $percentofrightanswers >= mod_personalschedule_config::minpercenttopass;
             }
 
         } else {
-            $notRated = true;
-            $isPassed = false;
+            $notrated = true;
+            $ispassed = false;
         }
 
-        $userViewInfo = new user_practice_info($id, $attempts, $isPassed, $notRated);
-        return $userViewInfo;
+        $userviewinfo = new user_practice_info($id, $attempts, $ispassed, $notrated);
+        return $userviewinfo;
     }
 
     /**
      * Returns user_view_info for the mod_survey activity.
      * Called implicitly by call_user_func(...) in get_user_views_info(...).
-     * @param int $userId User ID.
-     * @param int $courseId Course ID.
+     * @param int $userid User ID.
+     * @param int $courseid Course ID.
      * @param int $instance Activity Instance ID.
      * @param int $actions User's interactions count with this activity (from logstore).
      * @param int $id ID from logstore.
      * @return user_view_info
      */
-    public static function get_survey_user_view_info($userId, $courseId, $instance, $cmid, $actions, $id) {
+    public static function get_survey_user_view_info($userid, $courseid, $instance, $cmid, $actions, $id) {
         if (!is_callable("survey_already_done")) {
             //TODO: Show error message to admin.
             $passed = true;
         } else {
-            $passed = survey_already_done($instance, $userId);
+            $passed = survey_already_done($instance, $userid);
         }
 
-        $userViewInfo = new user_practice_info($id,$passed ? 1 : 0, $passed, false);
-        return $userViewInfo;
+        $userviewinfo = new user_practice_info($id,$passed ? 1 : 0, $passed, false);
+        return $userviewinfo;
     }
 
     /**
      * Returns user_view_info for the mod_assign activity.
      * Called implicitly by call_user_func(...) in get_user_views_info(...).
-     * @param int $userId User ID.
-     * @param int $courseId Course ID.
+     * @param int $userid User ID.
+     * @param int $courseid Course ID.
      * @param int $instance Activity Instance ID.
      * @param int $actions User's interactions count with this activity (from logstore).
      * @param int $id ID from logstore.
      * @return user_view_info
      */
-    public static function get_assign_user_view_info($userId, $courseId, $instance, $cmid, $actions, $id) {
+    public static function get_assign_user_view_info($userid, $courseid, $instance, $cmid, $actions, $id) {
         global $CFG;
         require_once($CFG->dirroot . '/mod/assign/locallib.php');
         $cm = new stdClass();
         $cm->id = $cmid;
-        $cm->course = $courseId;
-        $assign = new assign(null, $cm, $courseId);
+        $cm->course = $courseid;
+        $assign = new assign(null, $cm, $courseid);
 
         if (is_callable(array($assign, "get_user_submission"))) {
-            $submission = $assign->get_user_submission($userId, false);
-            $isPassed = $submission && $submission->status == ASSIGN_SUBMISSION_STATUS_SUBMITTED;
+            $submission = $assign->get_user_submission($userid, false);
+            $ispassed = $submission && $submission->status == ASSIGN_SUBMISSION_STATUS_SUBMITTED;
             //TODO: тут есть момент с тем, что если мы прошли тестирование, а потом нам его повторно дали,
             // то когда будем смотреть actions, то оно не поменяется, и мы можем посчитать, что якобы ничего не делали
         } else {
-            $isPassed = true;
+            $ispassed = true;
         }
 
-        $userViewInfo = new user_practice_info($id,$isPassed ? 1 : 0, $isPassed, false);
-        return $userViewInfo;
+        $userviewinfo = new user_practice_info($id,$ispassed ? 1 : 0, $ispassed, false);
+        return $userviewinfo;
     }
 
     /**
      * Returns user_view_info for the mod_feedback activity.
      * Called implicitly by call_user_func(...) in get_user_views_info(...).
-     * @param int $userId User ID.
-     * @param int $courseId Course ID.
+     * @param int $userid User ID.
+     * @param int $courseid Course ID.
      * @param int $instance Activity Instance ID.
      * @param int $actions User's interactions count with this activity (from logstore).
      * @param int $id ID from logstore.
      * @return user_view_info
      */
-    public static function get_feedback_user_view_info($userId, $courseId, $instance, $cmid, $actions, $id) {
+    public static function get_feedback_user_view_info($userid, $courseid, $instance, $cmid, $actions, $id) {
         // Feedback can be anonymous, so we can just rely on actions number. It's not important to check
         // if user completes the feedback.
         return new user_practice_info($id, $actions, $actions > 0, false);
@@ -943,19 +990,19 @@ GROUP BY l.userid, l.contextinstanceid";
     /**
      * Returns user_view_info for the mod_choice activity.
      * Called implicitly by call_user_func(...) in get_user_views_info(...).
-     * @param int $userId User ID.
-     * @param int $courseId Course ID.
+     * @param int $userid User ID.
+     * @param int $courseid Course ID.
      * @param int $instance Activity Instance ID.
      * @param int $actions User's interactions count with this activity (from logstore).
      * @param int $id ID from logstore.
      * @return user_view_info
      */
-    public static function get_choice_user_view_info($userId, $courseId, $instance, $cmid, $actions, $id) {
+    public static function get_choice_user_view_info($userid, $courseid, $instance, $cmid, $actions, $id) {
         global $DB;
         try {
-            $attempts = $DB->count_records('choice_answers', array('choiceid' => $instance, 'userid' => $userId));
+            $attempts = $DB->count_records('choice_answers', array('choiceid' => $instance, 'userid' => $userid));
         } catch (dml_exception $e) {
-            // isPassed will be true, and the activity will be not processed by algorithm.
+            // ispassed will be true, and the activity will be not processed by algorithm.
             $attempts = 1;
         }
         return new user_practice_info($id, $attempts, $attempts > 0, false);

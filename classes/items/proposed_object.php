@@ -6,33 +6,33 @@ defined('MOODLE_INTERNAL') || die;
 
 abstract class proposed_object {
     /** @var int */
-    public $modifiedDurationSec = 0;
+    public $modifieddurationsec = 0;
 
     /** @var day_period_info Описывает пользовательские сутки (не обычные), к которым принадлежит
     данный предложенный учебный элемент */
-    public $dayPeriodInfo;
+    public $dayperiodinfo;
 
     /** @var float|int */
-    public $periodIdxBegin = 0;
+    public $periodidxbegin = 0;
     /** @var float|int */
-    public $periodIdxEnd = 0;
+    public $periodidxend = 0;
 
     /**
      * proposed_object constructor.
-     * @param $modifiedDurationSec int
-     * @param $periodIdxBegin float|int
-     * @param $dayBeginDayIdx int
-     * @param $dayBeginPeriodIdx int
-     * @param $weekIdx int
+     * @param $modifieddurationsec int
+     * @param $periodidxbegin float|int
+     * @param $daybegindayidx int
+     * @param $daybeginperiodidx int
+     * @param $weekidx int
      */
-    public function __construct($modifiedDurationSec, $periodIdxBegin,
-        $dayBeginDayIdx, $dayBeginPeriodIdx, $weekIdx)
+    public function __construct($modifieddurationsec, $periodidxbegin,
+        $daybegindayidx, $daybeginperiodidx, $weekidx)
     {
-        $this->modifiedDurationSec = (int)ceil($modifiedDurationSec);
-        $this->periodIdxBegin = $periodIdxBegin;
-        $this->periodIdxEnd = $periodIdxBegin + ($modifiedDurationSec / 60 / 60);
+        $this->modifieddurationsec = (int)ceil($modifieddurationsec);
+        $this->periodidxbegin = $periodidxbegin;
+        $this->periodidxend = $periodidxbegin + ($modifieddurationsec / 60 / 60);
 
-        $this->dayPeriodInfo = new day_period_info($weekIdx, $dayBeginDayIdx, $dayBeginPeriodIdx);
+        $this->dayperiodinfo = new day_period_info($weekidx, $daybegindayidx, $daybeginperiodidx);
     }
 }
 

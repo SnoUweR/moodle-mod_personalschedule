@@ -8,19 +8,19 @@ class day_period_info
 {
 
     /** @var int */
-    public $weekIdx;
+    public $weekidx;
 
     /** @var int */
-    public $dayIdx;
+    public $dayidx;
 
     /** @var int */
-    public $periodIdx;
+    public $periodidx;
 
 
-    public function __construct($weekIdx, $dayIdx, $periodIdx)
+    public function __construct($weekidx, $dayidx, $periodidx)
     {
-        $this->weekIdx = $weekIdx;
-        $this->dayIdx = $dayIdx;
-        $this->periodIdx = $periodIdx;
+        $this->weekidx = $weekidx;
+        $this->dayidx = $dayidx;
+        $this->periodidx = $periodidx;
     }
 }

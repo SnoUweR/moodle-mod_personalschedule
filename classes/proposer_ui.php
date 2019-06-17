@@ -24,6 +24,7 @@
 
 use mod_personalschedule\items\proposed_activity_object;
 use mod_personalschedule\items\proposed_relax_object;
+use mod_personalschedule\items\user_view_info;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -36,12 +37,12 @@ class mod_personalschedule_proposer_ui {
     /**
      * Returns localized string of the actions status.
      * So if the status was true, then returns something like "Watched" or "Completed".
-     * @param bool $actionsStatus Actions status.
+     * @param bool $actionsstatus Actions status.
      * @return string Localized description of the actions status.
      * @throws coding_exception
      */
-    private static function get_proposed_element_actions_status_localized($actionsStatus) {
-        return $actionsStatus ?
+    private static function get_proposed_element_actions_status_localized($actionsstatus) {
+        return $actionsstatus ?
             get_string('proposes_actionsstatus_true', 'personalschedule') :
             get_string('proposes_actionsstatus_false', 'personalschedule');
     }
@@ -51,13 +52,13 @@ class mod_personalschedule_proposer_ui {
      * was, for example, 60 minutes, then returns 1 hour. But if the duration was 95 minutes,
      * then returns 1:30 (instead of 1:35). But if the duration was 115 minutes, then returns
      * 2 hours.
-     * @param int $durationInSeconds Duration in seconds.
+     * @param int $durationinseconds Duration in seconds.
      * @return string Approximated localized duration.
      * @throws coding_exception
      */
-    private static function get_approximated_localized_duration($durationInSeconds) {
+    private static function get_approximated_localized_duration($durationinseconds) {
         mod_personalschedule_proposer_ui::get_duration_components(
-            $durationInSeconds, $days, $hours, $minutes, $seconds);
+            $durationinseconds, $days, $hours, $minutes, $seconds);
         if ($hours >= 1) {
             if ($minutes <= 15) {
                 return get_string('proposes_approxduration_h', 'personalschedule', $hours);
@@ -84,59 +85,59 @@ class mod_personalschedule_proposer_ui {
     /**
      * Returns localized duration for received total seconds value.
      * For example, if 3600 was passed, then returns something like "3600 sec. (1 hrs.)".
-     * @param int $durationInSeconds Duration in seconds.
+     * @param int $durationinseconds Duration in seconds.
      * @return string Localized duration.
      * @throws coding_exception
      */
-    public static function get_localized_duration($durationInSeconds)
+    public static function get_localized_duration($durationinseconds)
     {
-        $durationInMinutes = $durationInSeconds / 60;
-        $durationInHours = $durationInMinutes / 60;
+        $durationinminutes = $durationinseconds / 60;
+        $durationinhours = $durationinminutes / 60;
 
-        if ($durationInHours > 1) {
+        if ($durationinhours > 1) {
             return
                 sprintf(get_string('proposes_duration_sh', 'personalschedule'),
-                    $durationInSeconds, $durationInHours);
+                    $durationinseconds, $durationinhours);
         }
 
-        if ($durationInMinutes > 1) {
+        if ($durationinminutes > 1) {
             return
                 sprintf(get_string('proposes_duration_sm', 'personalschedule'),
-                    $durationInSeconds, $durationInMinutes);
+                    $durationinseconds, $durationinminutes);
         }
 
-        return get_string('proposes_duration_s', 'personalschedule', $durationInSeconds);
+        return get_string('proposes_duration_s', 'personalschedule', $durationinseconds);
     }
 
     /**
      * Generate HTML with table and proposed elements for the specific course, user, and by the specific personalschedule module.
      * @param stdClass $course Course object.
-     * @param int $userId User ID.
-     * @param stdClass|cm_info $personalscheduleCm Personalization module instance object. Must contains instance and id fields.
-     * @param int $curTime Current UNIX time. If null, then the function will call time() manually.
-     * @param int $dayIdx Current day index. If null, then will be set from $curTime info.
-     * @param int $periodIdx Current period index. If null, then will be set from $curTime info.
+     * @param int $userid User ID.
+     * @param stdClass|cm_info $personalschedulecm Personalization module instance object. Must contains instance and id fields.
+     * @param int $curtime Current UNIX time. If null, then the function will call time() manually.
+     * @param int $dayidx Current day index. If null, then will be set from $curtime info.
+     * @param int $periodidx Current period index. If null, then will be set from $curtime info.
      * @return string HTML with a table with proposed elements.
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_proposed_table($course, $userId, $personalscheduleCm,
-        $curTime = null, $dayIdx = null, $periodIdx = null) {
+    public static function get_proposed_table($course, $userid, $personalschedulecm,
+        $curtime = null, $dayidx = null, $periodidx = null) {
 
-        global $CFG, $OUTPUT;
+        global $CFG, $OUTPUT, $USER;
 
         $icon = $OUTPUT->pix_icon('i/course', get_string('course'));
         $coursecontext = context_course::instance($course->id);
-        $courseHtmlTitle = format_string($course->shortname, true, array('context' => $coursecontext));
-        $courseHtmlLink = "$CFG->wwwroot/course/view.php?id=$course->id";
-        $courseNameHtml = html_writer::tag("span", html_writer::tag("a",
+        $coursehtmltitle = format_string($course->shortname, true, array('context' => $coursecontext));
+        $coursehtmllink = "$CFG->wwwroot/course/view.php?id=$course->id";
+        $coursenamehtml = html_writer::tag("span", html_writer::tag("a",
             $icon.format_string(get_course_display_name_for_list($course)),
-            array("title" => $courseHtmlTitle, "href" => $courseHtmlLink)));
+            array("title" => $coursehtmltitle, "href" => $coursehtmllink)));
 
-        $tableCourseElements = new html_table();
-        $tableCourseElements->id = "personal-course-elements";
-        $tableCourseElements->head =
+        $tablecourseelements = new html_table();
+        $tablecourseelements->id = "personal-course-elements";
+        $tablecourseelements->head =
             array(
                 get_string('proposes_tablehead_1', 'personalschedule'),
                 get_string('proposes_tablehead_2', 'personalschedule'),
@@ -148,96 +149,99 @@ class mod_personalschedule_proposer_ui {
                 get_string('proposes_tablehead_4', 'personalschedule')
             );
 
-        $tableCourseElements->data = array();
-        $scheduleAlreadySubmitted = personalschedule_does_schedule_already_submitted(
-            $personalscheduleCm->instance, $userId);
+        $tablecourseelements->data = array();
+        $schedulealreadysubmitted = personalschedule_does_schedule_already_submitted(
+            $personalschedulecm->instance, $userid);
 
-        $resultHtml = '';
+        if ($schedulealreadysubmitted) {
+            $useractionsinfo = mod_personalschedule_proposer::get_user_views_info($userid, $course->id);
 
-        if ($scheduleAlreadySubmitted) {
-            $userActionsInfo = mod_personalschedule_proposer::get_user_views_info($userId, $course->id);
-
-            if ($curTime == null) {
-                $curTime = time();
+            if ($curtime == null) {
+                if ($USER->id == $userid) {
+                    $curtime = mod_personalschedule_proposer::get_user_current_timestamp();
+                } else {
+                    $curtime = time();
+                }
             }
 
-            if ($dayIdx == null) {
-                $dayIdx = mod_personalschedule_proposer::personal_items_get_day_idx($curTime);
+            if ($dayidx == null) {
+                $dayidx = mod_personalschedule_proposer::personal_items_get_day_idx($curtime);
             }
 
-            if ($periodIdx == null) {
-                $periodIdx = mod_personalschedule_proposer::personal_items_get_period_idx($curTime);
+            if ($periodidx == null) {
+                $periodidx = mod_personalschedule_proposer::personal_items_get_period_idx($curtime);
             }
 
-            $weekIdx =
-                self::personalschedule_get_week_idx($curTime, $userId,
-                    $personalscheduleCm->instance);
+            $weekidx =
+                self::personalschedule_get_week_idx($curtime, $userid,
+                    $personalschedulecm->instance);
 
-            $personalItems = mod_personalschedule_proposer::personal_get_items($personalscheduleCm->instance,
-                $userId, $course->id, $dayIdx, $periodIdx, $weekIdx, $userActionsInfo);
+            $personalitems = mod_personalschedule_proposer::personal_get_items($personalschedulecm->instance,
+                $userid, $course->id, $dayidx, $periodidx, $weekidx, $useractionsinfo);
 
-            $alreadyViewedElementsCount = 0;
-            $alreadyAddedElementsToData = 0;
+            $alreadyviewedelementscount = 0;
+            $alreadyaddedelementstodata = 0;
 
-            foreach ($personalItems as $personalItem) {
-                /** @var html_table_cell[] $tableRowData */
-                $tableRowData = array();
+            foreach ($personalitems as $personalitem) {
+                /** @var html_table_cell[] $tablerowdata */
+                $tablerowdata = array();
 
-                if ($personalItem instanceof proposed_relax_object) {
-                    $tableRowData = self::get_relax_rowdata($personalItem);
-                } else if ($personalItem instanceof proposed_activity_object) {
-                    list($alreadyViewedElementsCount, $tableRowData) = self::get_activity_rowdata($dayIdx, $periodIdx,
-                        $personalItem, $userActionsInfo, $alreadyViewedElementsCount);
+                if ($personalitem instanceof proposed_relax_object) {
+                    $tablerowdata = self::get_relax_rowdata($personalitem);
+                    $alreadyviewedelementscount++;
+                } else if ($personalitem instanceof proposed_activity_object) {
+                    list($alreadyviewedelementscount, $tablerowdata) = self::get_activity_rowdata($dayidx, $periodidx,
+                        $personalitem, $useractionsinfo, $alreadyviewedelementscount);
                 }
 
-                $tableCourseElements->data[$alreadyAddedElementsToData++] = $tableRowData;
+                $tablecourseelements->data[$alreadyaddedelementstodata++] = $tablerowdata;
             }
 
-            if (!empty($personalItems)) {
-                $allElementsViewed = $alreadyViewedElementsCount == count($personalItems);
-                if ($allElementsViewed) {
+            if (!empty($personalitems)) {
+                $allelementsviewed = $alreadyviewedelementscount == count($personalitems);
+                if ($allelementsviewed) {
                     $cell1 = new html_table_cell();
                     $cell1->text = get_string('proposes_allcompleted', 'personalschedule');
-                    $cell1->colspan = count($tableCourseElements->head);
-                    $tableCourseElements->data[] = array($cell1);
+                    $cell1->colspan = count($tablecourseelements->head);
+                    $tablecourseelements->data[] = array($cell1);
                 }
             } else {
                 $cell1 = new html_table_cell();
                 $cell1->text = get_string('proposes_notasks', 'personalschedule');
-                $cell1->colspan = count($tableCourseElements->head);
-                $tableCourseElements->data[] = array($cell1);
+                $cell1->colspan = count($tablecourseelements->head);
+                $tablecourseelements->data[] = array($cell1);
             }
         } else {
             $cell1 = new html_table_cell();
 
 
             $cell1->text = sprintf(get_string('proposes_noschedule', 'personalschedule'),
-                "$CFG->wwwroot/mod/personalschedule/view.php?id=$personalscheduleCm->id");
-            $cell1->colspan = count($tableCourseElements->head);
-            $tableCourseElements->data[] = array($cell1);
+                "$CFG->wwwroot/mod/personalschedule/view.php?id=$personalschedulecm->id");
+            $cell1->colspan = count($tablecourseelements->head);
+            $tablecourseelements->data[] = array($cell1);
         }
 
-        $resultHtml .= self::table_to_html($tableCourseElements, $courseNameHtml);
+        $resulthtml = self::table_to_html($tablecourseelements, $coursenamehtml);
 
-        if ($scheduleAlreadySubmitted) {
+        if ($schedulealreadysubmitted) {
             $url = new moodle_url(
-                "$CFG->wwwroot/mod/personalschedule/admin_notify.php", array('id' => $personalscheduleCm->id));
+                "$CFG->wwwroot/mod/personalschedule/admin_notify.php", array('id' => $personalschedulecm->id));
             $button = $OUTPUT->single_button($url,
                 get_string('sendnotifytoadmin', 'personalschedule'), "get");
-            $resultHtml .= $button;
+            $resulthtml .= $button;
         }
 
-        return $resultHtml;
+        return $resulthtml;
     }
 
     /**
      * This function is the copy of html_writer::table(...), but supports
      * a combined header, which adds over the normal columns headers.
      * @param html_table $table data to be rendered.
-     * @param string $topHead Combined header name. If empty, then combined header will not be added.
+     * @param string $tophead Combined header name. If empty, then combined header will not be added.
      * @return string HTML code with table.
      */
-    private static function table_to_html(html_table $table, $topHead = '') {
+    private static function table_to_html(html_table $table, $tophead = '') {
         // prepare table data and populate missing properties with reasonable defaults
         if (!empty($table->align)) {
             foreach ($table->align as $key => $aa) {
@@ -319,9 +323,9 @@ class mod_personalschedule_proposer_ui {
             $output .= html_writer::start_tag('thead', array()) . "\n";
 
 
-            if (!empty($topHead)) {
+            if (!empty($tophead)) {
                 $output .= html_writer::start_tag('tr', array()) . "\n";
-                $output .= html_writer::tag("th", $topHead, array("colspan" => count($table->head))) . "\n";
+                $output .= html_writer::tag("th", $tophead, array("colspan" => count($table->head))) . "\n";
                 $output .= html_writer::end_tag('tr') . "\n";
             }
 
@@ -479,128 +483,128 @@ class mod_personalschedule_proposer_ui {
     }
 
     /**
-     * @param $personalItem
+     * @param $personalitem
      * @return array
      * @throws coding_exception
      * @throws moodle_exception
      */
-    private static function get_relax_rowdata($personalItem)
+    private static function get_relax_rowdata($personalitem)
     {
-        /** @var html_table_cell[] $tableRowData */
-        $tableRowData = array();
+        /** @var html_table_cell[] $tablerowdata */
+        $tablerowdata = array();
 
-        $relaxIconHtml = html_writer::empty_tag('img',
+        $relaxiconhtml = html_writer::empty_tag('img',
             array('src' => new moodle_url('/mod/personalschedule/pix/relax.png')));
 
-        $tableRowData[] = new html_table_cell($relaxIconHtml .
+        $tablerowdata[] = new html_table_cell($relaxiconhtml .
             get_string('proposes_relax', 'personalschedule'));
 
-        $tableRowData[] = new html_table_cell(
-            html_writer::span(sprintf("%d:00", (int)$personalItem->periodIdxBegin)));
+        $tablerowdata[] = new html_table_cell(
+            html_writer::span(sprintf("%d:00", (int)$personalitem->periodidxbegin)));
 
-        $durationCell = new html_table_cell(
+        $durationcell = new html_table_cell(
             self::get_approximated_localized_duration(
-                $personalItem->modifiedDurationSec)
+                $personalitem->modifieddurationsec)
         );
-        $durationCell->colspan = 2;
-        $tableRowData[] = $durationCell;
-        return $tableRowData;
+        $durationcell->colspan = 2;
+        $tablerowdata[] = $durationcell;
+        return $tablerowdata;
     }
 
     /**
-     * @param $dayIdx
-     * @param $periodIdx
-     * @param $personalItem
-     * @param array $userActionsInfo
-     * @param $alreadyViewedElementsCount
+     * TODO: This method should be commented.
+     * @param int $dayidx
+     * @param int $periodidx
+     * @param proposed_activity_object $personalitem
+     * @param user_view_info[] $useractionsinfo
+     * @param int $alreadyviewedelementscount
      * @return array
      * @throws coding_exception
      */
     private static function get_activity_rowdata(
-        $dayIdx,
-        $periodIdx,
-        $personalItem,
-        array $userActionsInfo,
-        $alreadyViewedElementsCount
+        $dayidx,
+        $periodidx,
+        $personalitem,
+        array $useractionsinfo,
+        $alreadyviewedelementscount
     ) {
         global $CFG;
 
-        $moduleIconHtml = html_writer::empty_tag('img',
-            array('src' => $personalItem->activity->get_icon_url()));
+        $moduleiconhtml = html_writer::empty_tag('img',
+            array('src' => $personalitem->activity->get_icon_url()));
 
+        $actionsstatus =
+            mod_personalschedule_proposer::get_proposed_element_actions_status($useractionsinfo,
+                $personalitem);
 
-        $actionsStatus =
-            mod_personalschedule_proposer::get_proposed_element_actions_status($userActionsInfo,
-                $personalItem);
+        $allrowcellscssclass = "";
 
-        $allRowCellsCssClass = "";
-
-        $isProposedElementSkipped = false;
-        if ($actionsStatus) {
-            $actionsStatusCssClass = "element-status-viewed";
-            $alreadyViewedElementsCount++;
-            $allRowCellsCssClass = $actionsStatusCssClass;
+        $isproposedelementskipped = false;
+        if ($actionsstatus) {
+            $actionsstatuscssclass = "element-status-viewed";
+            $alreadyviewedelementscount++;
+            $allrowcellscssclass = $actionsstatuscssclass;
         } else {
-            $isProposedElementSkipped =
+            $isproposedelementskipped =
                 self::is_proposed_element_skipped_by_time(
-                    $personalItem, $dayIdx, $periodIdx);
+                    $personalitem, $dayidx, $periodidx);
 
-            if ($isProposedElementSkipped) {
-                $elementBeginPeriodCssClass = "element-period-skipped";
-                $allRowCellsCssClass = $elementBeginPeriodCssClass;
+            if ($isproposedelementskipped) {
+                $elementbeginperiodcssclass = "element-period-skipped";
+                $allrowcellscssclass = $elementbeginperiodcssclass;
             }
         }
 
-        $activityNameHtml = sprintf(
+        $activitynamehtml = sprintf(
             "<a href=\"$CFG->wwwroot/mod/%s/view.php?id=%s\">%s %s (%s)</a>",
-            $personalItem->activity->modname, $personalItem->activity->id, $moduleIconHtml,
-            $personalItem->activity->name, $personalItem->activity->modfullname);
+            $personalitem->activity->modname, $personalitem->activity->id, $moduleiconhtml,
+            $personalitem->activity->name, $personalitem->activity->modfullname);
 
-        $zerothCell = new html_table_cell($activityNameHtml);
+        $zerothcell = new html_table_cell($activitynamehtml);
 
-        $firstCell = new html_table_cell(
-            html_writer::span(sprintf("%d:00", (int)$personalItem->periodIdxBegin),
-                $isProposedElementSkipped ? "element-start-period-skipped" : ""));
-        $secondCell = new html_table_cell(
+        $firstcell = new html_table_cell(
+            html_writer::span(sprintf("%d:00", (int)$personalitem->periodidxbegin),
+                $isproposedelementskipped ? "element-start-period-skipped" : ""));
+        $secondcell = new html_table_cell(
             self::get_approximated_localized_duration(
-                $personalItem->modifiedDurationSec)
+                $personalitem->modifieddurationsec)
         );
 
-        $actionsStatusLocalizedText =
-            self::get_proposed_element_actions_status_localized($actionsStatus);
+        $actionsstatuslocalizedtext =
+            self::get_proposed_element_actions_status_localized($actionsstatus);
 
 
-        $thirdCell = new html_table_cell(
-            html_writer::span($actionsStatusLocalizedText)
+        $thirdcell = new html_table_cell(
+            html_writer::span($actionsstatuslocalizedtext)
         );
 
-        /** @var html_table_cell[] $tableRowData */
-        $tableRowData = array();
-        $tableRowData[] = $zerothCell;
-        $tableRowData[] = $firstCell;
-        $tableRowData[] = $secondCell;
-        $tableRowData[] = $thirdCell;
+        /** @var html_table_cell[] $tablerowdata */
+        $tablerowdata = array();
+        $tablerowdata[] = $zerothcell;
+        $tablerowdata[] = $firstcell;
+        $tablerowdata[] = $secondcell;
+        $tablerowdata[] = $thirdcell;
 
-        foreach ($tableRowData as $cell) {
-            $cell->attributes["class"] = $allRowCellsCssClass;
+        foreach ($tablerowdata as $cell) {
+            $cell->attributes["class"] = $allrowcellscssclass;
         }
-        return array($alreadyViewedElementsCount, $tableRowData);
+        return array($alreadyviewedelementscount, $tablerowdata);
     }
 
 
     /**
      * Returns time of first schedule creation for the user and personalschedule module instance id
-     * @param $userId int
-     * @param $personalscheduleId int
+     * @param $userid int
+     * @param $personalscheduleid int
      * @return int
      * @throws dml_exception
      */
-    private static function personalschedule_get_schedule_create_time($userId, $personalscheduleId)
+    private static function personalschedule_get_schedule_create_time($userid, $personalscheduleid)
     {
         global $DB;
         $data = $DB->get_record(
             "personalschedule_usrattempts",
-            array("userid" => $userId, "personalschedule" => $personalscheduleId), "timecreated");
+            array("userid" => $userid, "personalschedule" => $personalscheduleid), "timecreated");
         return $data == false ? 0 : $data->timecreated;
     }
 
@@ -608,30 +612,30 @@ class mod_personalschedule_proposer_ui {
      * Returns how many weeks have passed since user's schedule was created.
      * The value starts from 1. For example, if the current week is the week, when the schedule was created, then this
      * function will return 1 (not 0).
-     * @param int $curTime Current UNIX time.
-     * @param int $userId User ID.
-     * @param int $personalscheduleId Personalization module instance ID.
+     * @param int $curtime Current UNIX time.
+     * @param int $userid User ID.
+     * @param int $personalscheduleid Personalization module instance ID.
      * @return int Number of weeks, that have passed since user's schedule was created.
      * @throws dml_exception
      */
-    private static function personalschedule_get_week_idx($curTime, $userId, $personalscheduleId)
+    private static function personalschedule_get_week_idx($curtime, $userid, $personalscheduleid)
     {
-        $scheduleCreatedTime = self::personalschedule_get_schedule_create_time($userId, $personalscheduleId);
-        $weeksCount = (int)ceil(abs($scheduleCreatedTime - $curTime)/60/60/24/7);
-        return $weeksCount;
+        $schedulecreatedtime = self::personalschedule_get_schedule_create_time($userid, $personalscheduleid);
+        $weekscount = (int)ceil(abs($schedulecreatedtime - $curtime)/60/60/24/7);
+        return $weekscount;
     }
 
 
     /**
      * Splits duration in seconds by time components.
-     * @param int $durationInSeconds Duration (in seconds) that should be split.
+     * @param int $durationinseconds Duration (in seconds) that should be split.
      * @param int|float $days Total days.
      * @param int|float $hours Total hours.
      * @param int|float $minutes Total minutes.
      * @param int|float $seconds Total seconds.
      */
-    public static function get_duration_components($durationInSeconds, &$days, &$hours, &$minutes, &$seconds) {
-        $seconds = $durationInSeconds;
+    public static function get_duration_components($durationinseconds, &$days, &$hours, &$minutes, &$seconds) {
+        $seconds = $durationinseconds;
 
         $days = (int)($seconds / ( 24 * 60 * 60 ));
         if ($days >= 1) {
@@ -652,32 +656,32 @@ class mod_personalschedule_proposer_ui {
     /**
      * Returns true if the current period is ahead of the proposed element
      * end period
-     * @param $proposedElement proposed_activity_object Uses only periodIdxBegin, modifiedDurationSec and dayPeriodInfo
-     * variables from the proposedElement object
-     * @param $curDayIdx int
-     * @param $curPeriodIdx int
+     * @param $proposedelement proposed_activity_object Uses only periodidxbegin, modifieddurationsec and dayperiodinfo
+     * variables from the proposedelement object
+     * @param $curdayidx int
+     * @param $curperiodidx int
      * @return bool
      */
-    public static function is_proposed_element_skipped_by_time($proposedElement, $curDayIdx, $curPeriodIdx) {
-        $proposedElementEndPeriod = $proposedElement->periodIdxBegin +
-            ($proposedElement->modifiedDurationSec / 60 / 60);
+    public static function is_proposed_element_skipped_by_time($proposedelement, $curdayidx, $curperiodidx) {
+        $proposedelementendperiod = $proposedelement->periodidxbegin +
+            ($proposedelement->modifieddurationsec / 60 / 60);
 
-        if ($proposedElement->dayPeriodInfo->dayIdx == $curDayIdx) {
-            return $curPeriodIdx > $proposedElementEndPeriod;
+        if ($proposedelement->dayperiodinfo->dayidx == $curdayidx) {
+            return $curperiodidx > $proposedelementendperiod;
         }
 
-        return $proposedElement->dayPeriodInfo->dayIdx > $curDayIdx;
+        return $proposedelement->dayperiodinfo->dayidx > $curdayidx;
     }
 
     /**
      * Converts day index to localized week day name (short version of it).
-     * @param int $dayIdx Day index (from 1 to 7 inclusive).
+     * @param int $dayidx Day index (from 1 to 7 inclusive).
      * @return string Localized week day name.
      */
-    public static function personalschedule_get_day_localize_from_idx($dayIdx) {
-        if ($dayIdx >= 1 && $dayIdx <= 7) {
+    public static function personalschedule_get_day_localize_from_idx($dayidx) {
+        if ($dayidx >= 1 && $dayidx <= 7) {
             try {
-                return get_string("weekidx_$dayIdx", "personalschedule");
+                return get_string("weekidx_$dayidx", "personalschedule");
             } catch (coding_exception $e) {
                 return '-';
             }
@@ -687,12 +691,12 @@ class mod_personalschedule_proposer_ui {
 
     /**
      * Just returns formatted period index. The format is "{PERIOD}-{PERIOD+1}".
-     * For example, if periodIdx = 23, then returns "23-24".
-     * @param int $periodIdx Period index.
+     * For example, if periodidx = 23, then returns "23-24".
+     * @param int $periodidx Period index.
      * @return string Formatted period index.
      */
-    public static function personalschedule_get_period_localize_from_idx($periodIdx) {
-        return $periodIdx.'-'.($periodIdx+1);
+    public static function personalschedule_get_period_localize_from_idx($periodidx) {
+        return $periodidx.'-'.($periodidx+1);
     }
 
 }

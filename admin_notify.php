@@ -57,36 +57,36 @@ echo $OUTPUT->heading($personalschedule->name);
 $personalschedulealreadydone = personalschedule_does_schedule_already_submitted($personalschedule->id, $USER->id);
 if ($personalschedulealreadydone) {
 
-    $isSubmit = optional_param("submit", 0, PARAM_BOOL);
-    if ($isSubmit) {
+    $issubmit = optional_param("submit", 0, PARAM_BOOL);
+    if ($issubmit) {
         $contextmodule = context_module::instance($cm->id);
-        $adminIds = get_users_by_capability($contextmodule, 'moodle/course:update', 'u.id');
-        if (count($adminIds) == 0) {
+        $adminids = get_users_by_capability($contextmodule, 'moodle/course:update', 'u.id');
+        if (count($adminids) == 0) {
             // TODO: Show error message.
         } else {
             $subject = get_string('adminnotifyemail_title', 'personalschedule', $course->shortname);
             $courseurl = course_get_url($course->id);
-            $courseLink = html_writer::link($courseurl, $course->fullname);
-            $userUrl = sprintf("$CFG->wwwroot/user/view.php?id=%d&course=%d", $USER->id, $course->id);
-            $messageSendUrl = sprintf("$CFG->wwwroot/message/index.php?id=%d", $USER->id);
+            $courselink = html_writer::link($courseurl, $course->fullname);
+            $userurl = sprintf("$CFG->wwwroot/user/view.php?id=%d&course=%d", $USER->id, $course->id);
+            $messagesendurl = sprintf("$CFG->wwwroot/message/index.php?id=%d", $USER->id);
             $fullmessage = sprintf(get_string('adminnotifyemail_message', 'personalschedule'),
-                html_writer::link($userUrl, sprintf("%s %s", $USER->lastname, $USER->firstname)),
-                $courseLink,
-                html_writer::link($messageSendUrl,
+                html_writer::link($userurl, sprintf("%s %s", $USER->lastname, $USER->firstname)),
+                $courselink,
+                html_writer::link($messagesendurl,
                     get_string('adminnotifyemail_message_this', 'personalschedule'))
             );
 
             // For now, it's sending message only for the first admin of the course.
-            $receiverUserId = reset($adminIds)->id;
+            $receiveruserid = reset($adminids)->id;
             personalschedule_send_notification_message(
-                'coursemodulecreated', $course->id, $receiverUserId, $subject, $fullmessage,
+                'coursemodulecreated', $course->id, $receiveruserid, $subject, $fullmessage,
                 $courseurl, $course->shortname);
 
             notice(get_string('adminnotify_success', 'personalschedule'), "$CFG->wwwroot/my");
         }
     } else {
         echo html_writer::tag("p",
-            sprintf(get_string('adminnotify_description', 'personalschedule'), $course->fullname));
+            get_string('adminnotify_description', 'personalschedule', $course->fullname));
         $url = new moodle_url("$CFG->wwwroot/mod/personalschedule/admin_notify.php", array(
             'id' => $id,
             'submit' => 1,

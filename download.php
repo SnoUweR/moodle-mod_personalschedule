@@ -74,23 +74,23 @@ if ($groupmode and $group) {
 // Get the actual questions from the database
 $schedules = $DB->get_records("personalschedule_schedules");
 
-$outputData = array();
+$outputdata = array();
 
 foreach ($schedules as $schedule) {
     if (!$u = $DB->get_record("user", array("id" => $schedule->userid))) {
         print_error('invaliduserid');
     }
 
-    $outputDataItem = array();
-    $outputDataItem['personalschedule'] = $schedule->personalschedule;
-    $outputDataItem['firstname'] = $u->firstname;
-    $outputDataItem['lastname'] = $u->lastname;
-    $outputDataItem['userid'] = $schedule->userid;
-    $outputDataItem['period_idx'] = $schedule->period_idx;
-    $outputDataItem['day_idx'] = $schedule->day_idx;
-    $outputDataItem['check_status'] = $schedule->check_status;
+    $outputdataitem = array();
+    $outputdataitem['personalschedule'] = $schedule->personalschedule;
+    $outputdataitem['firstname'] = $u->firstname;
+    $outputdataitem['lastname'] = $u->lastname;
+    $outputdataitem['userid'] = $schedule->userid;
+    $outputdataitem['period_idx'] = $schedule->period_idx;
+    $outputdataitem['day_idx'] = $schedule->day_idx;
+    $outputdataitem['check_status'] = $schedule->check_status;
 
-    $outputData[] = $outputDataItem;
+    $outputdata[] = $outputdataitem;
 }
 
 
@@ -99,28 +99,28 @@ $coursecontext = context_course::instance($course->id);
 $courseshortname = format_string($course->shortname, true, array('context' => $coursecontext));
 
 if ($type == "ods") {
-    output_ods_file($CFG, $outputData, $courseshortname, $personalschedule, $DB);
+    output_ods_file($CFG, $outputdata, $courseshortname, $personalschedule, $DB);
     exit;
 }
 
 
 if ($type == "xls") {
-    output_xls_file($CFG, $outputData, $courseshortname, $personalschedule, $DB);
+    output_xls_file($CFG, $outputdata, $courseshortname, $personalschedule, $DB);
     exit;
 }
 
-output_txt_file($outputData, $courseshortname, $personalschedule, $DB);
+output_txt_file($outputdata, $courseshortname, $personalschedule, $DB);
 exit;
 
 
 /**
- * @param $outputData
+ * @param $outputdata
  * @param $courseshortname
  * @param $personalschedule
  * @param moodle_database $DB
  */
 function output_txt_file(
-    $outputData,
+    $outputdata,
     $courseshortname,
     $personalschedule,
     moodle_database $DB
@@ -135,13 +135,13 @@ function output_txt_file(
 
 // Print names of all the fields
 
-    foreach ($outputData[0] as $name => $value) {
+    foreach ($outputdata[0] as $name => $value) {
         echo $name . "\t";
     }
     echo "\n";
 
-    foreach ($outputData as $outputDataItem) {
-        foreach ($outputDataItem as $value) {
+    foreach ($outputdata as $outputdataitem) {
+        foreach ($outputdataitem as $value) {
             echo $value . "\t";
         }
         echo "\n";
@@ -150,14 +150,14 @@ function output_txt_file(
 
 /**
  * @param stdClass $CFG
- * @param $outputData
+ * @param $outputdata
  * @param $courseshortname
  * @param $personalschedule
  * @param moodle_database $DB
  */
 function output_ods_file(
     stdClass $CFG,
-    $outputData,
+    $outputdata,
     $courseshortname,
     $personalschedule,
     moodle_database $DB
@@ -177,7 +177,7 @@ function output_ods_file(
 
     $header = array();
 
-    foreach ($outputData[0] as $name => $value) {
+    foreach ($outputdata[0] as $name => $value) {
         $header[] = $name;
     }
 
@@ -188,10 +188,10 @@ function output_ods_file(
     }
 
     $row = 0;
-    foreach ($outputData as $outputDataItem) {
+    foreach ($outputdata as $outputdataitem) {
         $col = 0;
         $row++;
-        foreach ($outputDataItem as $value) {
+        foreach ($outputdataitem as $value) {
             $myxls->write_string($row, $col++, $value);
         }
     }
@@ -203,14 +203,14 @@ function output_ods_file(
 
 /**
  * @param stdClass $CFG
- * @param $outputData
+ * @param $outputdata
  * @param $courseshortname
  * @param $personalschedule
  * @param moodle_database $DB
  */
 function output_xls_file(
     stdClass $CFG,
-    $outputData,
+    $outputdata,
     $courseshortname,
     $personalschedule,
     moodle_database $DB
@@ -231,7 +231,7 @@ function output_xls_file(
 
     $header = array();
 
-    foreach ($outputData[0] as $name => $value) {
+    foreach ($outputdata[0] as $name => $value) {
         $header[] = $name;
     }
 
@@ -242,10 +242,10 @@ function output_xls_file(
     }
 
     $row = 0;
-    foreach ($outputData as $outputDataItem) {
+    foreach ($outputdata as $outputdataitem) {
         $col = 0;
         $row++;
-        foreach ($outputDataItem as $value) {
+        foreach ($outputdataitem as $value) {
             $myxls->write_string($row, $col++, $value);
         }
     }

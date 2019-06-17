@@ -202,64 +202,64 @@ function show_student_report(
     personalschedule_print_schedule_table($personalschedule->id, $user->id);
 
 
-    $proposedItems = mod_personalschedule_proposer::get_all_proposed_items_from_cache(
+    $proposeditems = mod_personalschedule_proposer::get_all_proposed_items_from_cache(
         $personalschedule->id, $course->id, $user->id);
 
     echo $OUTPUT->box_start("generalbox boxaligncenter");
 
-    /** @var proposed_activity_object[][][] $grouppedProposedItems
-     * First key - weekIdx;
-     * Second key - dayIdx;
+    /** @var proposed_activity_object[][][] $grouppedproposeditems
+     * First key - weekidx;
+     * Second key - dayidx;
      * Value - proposed_activity_object[].
      */
-    $grouppedProposedItems = array();
+    $grouppedproposeditems = array();
 
-    printf("%d элементов<br>", count($proposedItems));
+    printf("%d элементов<br>", count($proposeditems));
 
 
 
-    foreach ($proposedItems as $proposedItem) {
+    foreach ($proposeditems as $proposeditem) {
 
-        if (!key_exists($proposedItem->dayPeriodInfo->weekIdx, $grouppedProposedItems)) {
-            $grouppedProposedItems[$proposedItem->dayPeriodInfo->weekIdx] = array();
+        if (!key_exists($proposeditem->dayperiodinfo->weekidx, $grouppedproposeditems)) {
+            $grouppedproposeditems[$proposeditem->dayperiodinfo->weekidx] = array();
         }
 
-        if (!key_exists($proposedItem->dayPeriodInfo->dayIdx, $grouppedProposedItems[$proposedItem->dayPeriodInfo->weekIdx])) {
-            $grouppedProposedItems[$proposedItem->dayPeriodInfo->weekIdx][$proposedItem->dayPeriodInfo->dayIdx] = array();
+        if (!key_exists($proposeditem->dayperiodinfo->dayidx, $grouppedproposeditems[$proposeditem->dayperiodinfo->weekidx])) {
+            $grouppedproposeditems[$proposeditem->dayperiodinfo->weekidx][$proposeditem->dayperiodinfo->dayidx] = array();
         }
 
-        $grouppedProposedItems[$proposedItem->dayPeriodInfo->weekIdx][$proposedItem->dayPeriodInfo->dayIdx][] = $proposedItem;
+        $grouppedproposeditems[$proposeditem->dayperiodinfo->weekidx][$proposeditem->dayperiodinfo->dayidx][] = $proposeditem;
     }
 
-    $userViewsInfo = mod_personalschedule_proposer::get_user_views_info($user->id, $course->id);
+    $userviewsinfo = mod_personalschedule_proposer::get_user_views_info($user->id, $course->id);
 
-    $userScheduleTimeInfo = personalschedule_get_schedule_creation_modified_time($personalschedule->id, $user->id);
+    $userscheduletimeinfo = personalschedule_get_schedule_creation_modified_time($personalschedule->id, $user->id);
     $dateformat = get_string('strftimedatefullshort', 'langconfig');
 
 
-    foreach ($grouppedProposedItems as $weekIdx => $weekProposedItems) {
+    foreach ($grouppedproposeditems as $weekidx => $weekproposeditems) {
         //TODO: локализация
-        foreach ($weekProposedItems as $dayIdx => $dayProposedItems) {
-            $dayLocalizedName =
-                mod_personalschedule_proposer_ui::personalschedule_get_day_localize_from_idx($dayIdx);
-            echo "<p>$dayLocalizedName</p>";
+        foreach ($weekproposeditems as $dayidx => $dayproposeditems) {
+            $daylocalizedname =
+                mod_personalschedule_proposer_ui::personalschedule_get_day_localize_from_idx($dayidx);
+            echo "<p>$daylocalizedname</p>";
 
 
-            $dayFullTimeCreated = $userScheduleTimeInfo->timecreated + (($weekIdx ) * 7 * 24 * 60 * 60) + (($dayIdx * 0) * 24 * 60 * 60);
-            echo html_writer::tag("p", userdate($dayFullTimeCreated, $dateformat));
-            echo html_writer::tag("p", userdate($userScheduleTimeInfo->timecreated, $dateformat));
-            foreach ($dayProposedItems as $proposedItem) {
-                $activityName = $proposedItem->activity->name;
+            $dayfulltimecreated = $userscheduletimeinfo->timecreated + (($weekidx ) * 7 * 24 * 60 * 60) + (($dayidx * 0) * 24 * 60 * 60);
+            echo html_writer::tag("p", userdate($dayfulltimecreated, $dateformat));
+            echo html_writer::tag("p", userdate($userscheduletimeinfo->timecreated, $dateformat));
+            foreach ($dayproposeditems as $proposeditem) {
+                $activityname = $proposeditem->activity->name;
                 echo "<p>";
-                echo "<span>$activityName</span> ";
-                if (key_exists($proposedItem->activity->id, $userViewsInfo)) {
-                    $userViewInfo = $userViewsInfo[$proposedItem->activity->id];
-                    if ($userViewInfo instanceof proposed_activity_object) {
-                        if ($userViewInfo->attempts > 0) {
-                            if ($userViewInfo->isPassed) {
+                echo "<span>$activityname</span> ";
+                if (key_exists($proposeditem->activity->id, $userviewsinfo)) {
+                    $userviewinfo = $userviewsinfo[$proposeditem->activity->id];
+                    if ($userviewinfo instanceof proposed_activity_object) {
+                        if ($userviewinfo->attempts > 0) {
+                            if ($userviewinfo->ispassed) {
                                 echo "<span>Пройдено</span>";
                             } else {
-                                if ($userViewInfo->notRated) {
+                                if ($userviewinfo->notrated) {
                                     echo "<span>Пройдено, но еще не оценено</span>";
                                 } else {
                                     echo "<span>Провалено</span>";
@@ -269,7 +269,7 @@ function show_student_report(
                             echo "<span>Просмотрено</span>";
                         }
                     } else {
-                        if ($userViewInfo->actions == $proposedItem->actions) {
+                        if ($userviewinfo->actions == $proposeditem->actions) {
                             echo "<span>Не просмотрено</span>";
                         }
                     }

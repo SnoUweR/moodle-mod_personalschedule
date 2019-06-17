@@ -7,30 +7,30 @@ class day_free_period_group
     /** @var day_free_period_group_element[] */
     public $periods = array();
 
-    public $periodIdxBegin = 0;
+    public $periodidxbegin = 0;
 
     /** @var int */
-    public $totalDurationSec = 0;
+    public $totaldurationsec = 0;
 
     /** @var int */
-    public $modifiedDurationSec = 0;
+    public $modifieddurationsec = 0;
 
-    public function __construct($periodIdxBegin)
+    public function __construct($periodidxbegin)
     {
-        $this->periodIdxBegin = $periodIdxBegin;
+        $this->periodidxbegin = $periodidxbegin;
     }
 
 
     /**
-     * @param $dayFreePeriodGroupElement day_free_period_group_element
+     * @param $dayfreeperiodgroupelement day_free_period_group_element
      */
-    public function add_period($dayFreePeriodGroupElement)
+    public function add_period($dayfreeperiodgroupelement)
     {
-        $this->periods[] = $dayFreePeriodGroupElement;
+        $this->periods[] = $dayfreeperiodgroupelement;
         // чтоб не получилось так, что поставив готовность 0, у нас не будет учитываться период в целом
-        $this->totalDurationSec += 1 * 60 * 60; // ибо в секундах
+        $this->totaldurationsec += 1 * 60 * 60; // ибо в секундах
         //TODO: вынести в конфиг
-        $this->modifiedDurationSec += (max(0.2, $dayFreePeriodGroupElement->readinessValue)) * 60 * 60;
+        $this->modifieddurationsec += (max(0.2, $dayfreeperiodgroupelement->readinessvalue)) * 60 * 60;
     }
 
     /**
@@ -38,7 +38,7 @@ class day_free_period_group
      */
     public function get_modified_duration_in_hours()
     {
-        return $this->modifiedDurationSec / 60 / 60;
+        return $this->modifieddurationsec / 60 / 60;
     }
 
     /**
@@ -46,6 +46,6 @@ class day_free_period_group
      */
     public function get_total_duration_in_hours()
     {
-        return $this->totalDurationSec / 60 / 60;
+        return $this->totaldurationsec / 60 / 60;
     }
 }

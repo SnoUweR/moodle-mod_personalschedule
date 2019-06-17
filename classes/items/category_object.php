@@ -4,41 +4,41 @@ namespace mod_personalschedule\items;
 
 class category_object
 {
-    public $categoryIndex = 0;
+    public $categoryindex = 0;
 
     /** @var category_learning_object[] */
     public $lectures = array();
     /** @var category_learning_object[] */
     public $practices = array();
     /** @var category_learning_object[] */
-    public $leftLectures = array();
+    public $leftlectures = array();
     /** @var category_learning_object[] */
-    public $leftPractices = array();
+    public $leftpractices = array();
 
-    public $shouldBeIgnored = false;
+    public $shouldbeignored = false;
 
-    public $isPassed = false;
+    public $ispassed = false;
 
     public $attempts = 0;
 
-    public $modifiedDurationSec = 0;
-    public $totalDurationSec = 0;
+    public $modifieddurationsec = 0;
+    public $totaldurationsec = 0;
 
 
     /**
-     * @param $learningObject category_learning_object
-     * @param $isLecture bool
+     * @param $learningobject category_learning_object
+     * @param $islecture bool
      */
-    public function add_learning_object($learningObject, $isLecture)
+    public function add_learning_object($learningobject, $islecture)
     {
-        if ($isLecture) {
-            $this->leftLectures[] = $learningObject;
+        if ($islecture) {
+            $this->leftlectures[] = $learningobject;
         } else {
-            $this->leftPractices[] = $learningObject;
+            $this->leftpractices[] = $learningobject;
         }
 
-        $this->totalDurationSec += $learningObject->totalDurationSec;
-        $this->modifiedDurationSec += $learningObject->modifiedDurationSec;
+        $this->totaldurationsec += $learningobject->totaldurationsec;
+        $this->modifieddurationsec += $learningobject->modifieddurationsec;
     }
 
 
@@ -47,12 +47,12 @@ class category_object
      */
     public function get_modified_duration_in_hours()
     {
-        return $this->modifiedDurationSec / 60 / 60;
+        return $this->modifieddurationsec / 60 / 60;
     }
 
-    public function __construct($categoryIndex)
+    public function __construct($categoryindex)
     {
-        $this->categoryIndex = $categoryIndex;
+        $this->categoryindex = $categoryindex;
     }
 
 }

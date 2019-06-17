@@ -14,59 +14,59 @@ class proposed_activity_object extends proposed_object {
     /**
      * proposed_object constructor.
      * @param $activity \cm_info
-     * @param $modifiedDurationSec int
-     * @param $periodIdxBegin float|int
+     * @param $modifieddurationsec int
+     * @param $periodidxbegin float|int
      * @param $actions int
-     * @param $dayBeginDayIdx int
-     * @param $dayBeginPeriodIdx int
-     * @param $weekIdx int
+     * @param $daybegindayidx int
+     * @param $daybeginperiodidx int
+     * @param $weekidx int
      */
-    public function __construct($activity, $modifiedDurationSec, $periodIdxBegin, $actions,
-        $dayBeginDayIdx, $dayBeginPeriodIdx, $weekIdx)
+    public function __construct($activity, $modifieddurationsec, $periodidxbegin, $actions,
+        $daybegindayidx, $daybeginperiodidx, $weekidx)
     {
         $this->activity = $activity;
         $this->actions = $actions;
 
-        parent::__construct($modifiedDurationSec, $periodIdxBegin, $dayBeginDayIdx, $dayBeginPeriodIdx, $weekIdx);
+        parent::__construct($modifieddurationsec, $periodidxbegin, $daybegindayidx, $daybeginperiodidx, $weekidx);
     }
 
 
     /**
-     * @param $dayInfo day_info
-     * @param $categoryObject category_object
-     * @param $periodIdxBegin int
+     * @param $dayinfo day_info
+     * @param $categoryobject category_object
+     * @param $periodidxbegin int
      * @return proposed_activity_object[]
      */
-    public static function get_proposed_objects_from_category($dayInfo, $categoryObject, $periodIdxBegin)
+    public static function get_proposed_objects_from_category($dayinfo, $categoryobject, $periodidxbegin)
     {
-        /** @var $proposedObjects proposed_activity_object[] */
-        $proposedObjects = array();
+        /** @var $proposedobjects proposed_activity_object[] */
+        $proposedobjects = array();
 
-        $currentPeriodIdxBegin = $periodIdxBegin;
+        $currentperiodidxbegin = $periodidxbegin;
 
-        foreach ($categoryObject->leftLectures as $lecture) {
+        foreach ($categoryobject->leftlectures as $lecture) {
 
-            $newObject = new proposed_activity_object($lecture->activity,
-                $lecture->modifiedDurationSec, $currentPeriodIdxBegin, $lecture->actions,
-                $dayInfo->dayBeginDayIdx, $dayInfo->dayBeginPeriodIdx, $dayInfo->weekIdx);
-            $proposedObjects[] = $newObject;
+            $newobject = new proposed_activity_object($lecture->activity,
+                $lecture->modifieddurationsec, $currentperiodidxbegin, $lecture->actions,
+                $dayinfo->daybegindayidx, $dayinfo->daybeginperiodidx, $dayinfo->weekidx);
+            $proposedobjects[] = $newobject;
 
-            $periodIdxEnd = $currentPeriodIdxBegin + $lecture->modifiedDurationSec / 60 / 60;
-            $currentPeriodIdxBegin = $periodIdxEnd;
+            $periodidxend = $currentperiodidxbegin + $lecture->modifieddurationsec / 60 / 60;
+            $currentperiodidxbegin = $periodidxend;
         }
 
-        foreach ($categoryObject->leftPractices as $practice) {
+        foreach ($categoryobject->leftpractices as $practice) {
 
-            $newObject = new proposed_activity_object($practice->activity,
-                $practice->modifiedDurationSec, $currentPeriodIdxBegin, $practice->actions,
-                $dayInfo->dayBeginDayIdx, $dayInfo->dayBeginPeriodIdx, $dayInfo->weekIdx);
-            $proposedObjects[] = $newObject;
+            $newobject = new proposed_activity_object($practice->activity,
+                $practice->modifieddurationsec, $currentperiodidxbegin, $practice->actions,
+                $dayinfo->daybegindayidx, $dayinfo->daybeginperiodidx, $dayinfo->weekidx);
+            $proposedobjects[] = $newobject;
 
-            $periodIdxEnd = $currentPeriodIdxBegin + $practice->modifiedDurationSec / 60 / 60;
-            $currentPeriodIdxBegin = $periodIdxEnd;
+            $periodidxend = $currentperiodidxbegin + $practice->modifieddurationsec / 60 / 60;
+            $currentperiodidxbegin = $periodidxend;
         }
 
-        return $proposedObjects;
+        return $proposedobjects;
     }
 }
 

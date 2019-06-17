@@ -3,25 +3,25 @@
 namespace mod_personalschedule\items;
 
 class day_free_period_group_element {
-   public $periodIdx = 0;
+   public $periodidx = 0;
 
    /** @var int|float */
-   public $waveValue = 0;
+   public $wavevalue = 0;
 
    /** @var int|float */
-   public $readinessValue = 0;
+   public $readinessvalue = 0;
 
 
     /**
-     * dayFreePeriodGroupElement constructor.
-     * @param $periodIdx int
-     * @param $waveValue int|float
-     * @param $readinessValue int|float
+     * dayfreeperiodgroupelement constructor.
+     * @param $periodidx int
+     * @param $wavevalue int|float
+     * @param $readinessvalue int|float
      */
-    public function __construct($periodIdx, $waveValue, $readinessValue)
+    public function __construct($periodidx, $wavevalue, $readinessvalue)
    {
-       $this->periodIdx = $periodIdx;
-       $this->waveValue = $waveValue;
-       $this->readinessValue = $readinessValue;
+       $this->periodidx = $periodidx;
+       $this->wavevalue = $wavevalue;
+       $this->readinessvalue = $readinessvalue;
    }
 }
