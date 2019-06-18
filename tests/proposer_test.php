@@ -200,7 +200,7 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
         $this->assertTrue($store->is_logging());
 
         $userviewsinfo = mod_personalschedule_proposer::get_user_views_info($this->student->id, $this->course->id);
-        $this->assertCount(0, userviewsInfo);
+        $this->assertCount(0, $userviewsinfo);
 
         // Create a quiz with one attempt finished.
         list($quiz, $context, $quizobj, $attempt, $attemptobj) = $this->create_quiz_with_questions(true, true);

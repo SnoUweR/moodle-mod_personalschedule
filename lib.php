@@ -914,12 +914,16 @@ function personalschedule_get_course_activities($course) {
 
 /**
  * Returns course modules props from the database for specified personalschedule id.
- * @param $personalscheduleid
+ * @param int $personalscheduleid
  * @return stdClass[] Array with stdobjects, all of which contains these properties:
  * duration; category; weight; is_ignored.
  * @throws dml_exception
  */
 function personalschedule_get_course_modules_props($personalscheduleid) {
+    if (!isset($personalscheduleid) || !is_int($personalscheduleid)) {
+        return array();
+    }
+
     global $DB;
     return $DB->get_records("personalschedule_cm_props", array("personalschedule" => $personalscheduleid), '',
         'cm, duration, category, weight, is_ignored');
