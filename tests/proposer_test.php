@@ -23,6 +23,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_personalschedule\items\user_practice_info;
+use mod_personalschedule\items\user_view_info;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -247,7 +250,7 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
         $userviewsinfo = mod_personalschedule_proposer::get_user_views_info($this->student->id, $this->course->id);
         $this->assertCount(2, $userviewsinfo);
         $this->assertArrayHasKey($resource->cmid, $userviewsinfo);
-        $this->assertEquals(0, $userviewsinfo[$resource->cmid]->attempts);
+        $this->assertFalse($userviewsinfo[$resource->cmid] instanceof user_practice_info);
         $this->assertEquals(1, $userviewsinfo[$resource->cmid]->actions);
 
         $this->assertCount(2, $result['attempts']);
