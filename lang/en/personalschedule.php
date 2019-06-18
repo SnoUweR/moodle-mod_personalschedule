@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -47,9 +46,7 @@ $string['guestsnotallowed'] = 'Guests not allowed to submit the schedule';
 $string['introtext'] = 'Intro text';
 $string['invalidpersonalscheduleid'] = 'Invalid personalschedule module ID';
 $string['modulename'] = 'Personalized Schedule';
-$string['modulename_help'] = 'A personalized schedule (personalschedule activity module) allows course users to set their own weekly schedule, taking into account when they are free and when they are busy or sleeping.
-Based on this schedule, as well as information about the user\'s age, it\'s will automatically selects the most suitable learning elements for the current day.
-This module can be paired with a block_personalitems on the user\'s personal page. Thus, the selected learning elements will be displayed for all courses.';
+$string['modulename_help'] = 'A personalized schedule (personalschedule activity module) allows course users to set their own weekly schedule, taking into account when they are free and when they are busy or sleeping. Based on this schedule, as well as information about the user\'s age, it\'s will automatically selects the most suitable learning elements for the current day. This module can be paired with a block_personalitems on the user\'s personal page. Thus, the selected learning elements will be displayed for all courses.';
 $string['modulename_link'] = 'mod/personalschedule/view';
 $string['modulenameplural'] = "Personalized Schedules";
 $string['name'] = 'Name';
@@ -68,8 +65,7 @@ $string['personalschedule:participate'] = 'Fill and submit personalized schedule
 $string['personalschedule:readresponses'] = 'See personalized schedules of other users';
 $string['personalschedulesaved'] = 'Personalized schedule was saved';
 $string['personalscheduletype_link'] = 'mod/personalschedule/mod';
-$string['thanksforanswers'] = 'Your personalized schedule has been saved successfully, {$a}. When you click on "Continue",
- you will be transferred to your personal account, where personalized learning elements will be displayed.';
+$string['thanksforanswers'] = 'Your personalized schedule has been saved successfully, {$a}. When you click on "Continue", you will be transferred to your personal account, where personalized learning elements will be displayed.';
 $string['time'] = 'Time';
 $string['viewpersonalscheduleresponses'] = 'View {$a} personalized schedules from other users';
 $string['notyetanswered'] = 'Nobody submitted schedule yet';
@@ -172,17 +168,15 @@ $string['proposes_actionsstatus_true'] = 'Viewed';
 $string['proposes_actionsstatus_false'] = 'Not viewed';
 
 $string['event_cmcreated_title'] = '[{$a}] Metadata update required';
-$string['event_cmcreated_message'] = 'The new learning element has been added to the course "%s" - "%s" (%s).<br>
-In order for the new element to become available in a personalized schedule module, you need to %s metadata.<br>';
+$string['event_cmcreated_message'] = 'The new learning element has been added to the course "%s" - "%s" (%s).<br>In order for the new element to become available in a personalized schedule module, you need to %s metadata.<br>';
 $string['event_cmcreated_message_update'] = 'update';
 
 $string['adminnotifyemail_title'] = '[{$a}] Student requested assistance';
-$string['adminnotifyemail_message'] = 'The user %s (course "%s")  encountered some problems while passing
-personalized learning elements.<br>
-You can contact him by %s link.';
+$string['adminnotifyemail_message'] = 'The user %s (course "%s") encountered some problems while passing personalized learning elements.<br>You can contact him by %s link.';
 $string['adminnotifyemail_message_this'] = 'this';
 $string['adminnotify_success'] = 'Your notification has been sent successfully';
 $string['adminnotify_description'] = 'The administrator will be notified that you have encountered some problems while passing the proposed elements of the course "{$a}".';
+$string['adminnotify_error'] = 'Unknown error happened while sending notification. Try again later.';
 
 $string['validation_schedulesetting'] = 'Schedule setting';
 $string['validation_readinesssetting'] = 'Readiness setting';
@@ -196,8 +190,6 @@ $string['sendnotifytoadmin_help'] = 'The course administrator will receive a not
 $string['notifynoactiveusers'] = 'Checks for users, which have not been on the site for a long time, and which have schedule. Sends message to these users.';
 
 $string['notifynoactiveusers_title'] = 'Schedule Reminder';
-$string['notifynoactiveusers_message'] = 'Hello, %s.<br>
-We noticed that you have not visited the e-learning site for %d days.<br>
-If you encounter problems while going through any learning elements, you can send a notification to the administrator on the page with the schedule, or change the schedule as well.<br> ';
+$string['notifynoactiveusers_message'] = 'Hello, %s.<br>We noticed that you have not visited the e-learning site for %d days.<br>If you encounter problems while going through any learning elements, you can send a notification to the administrator on the page with the schedule, or change the schedule as well.<br> ';
 
 $string['save_willupdatenextday'] = 'Already proposed learning elements will be updated on the next day.';

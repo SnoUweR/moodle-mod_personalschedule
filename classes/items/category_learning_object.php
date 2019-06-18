@@ -1,11 +1,26 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_personalschedule\items;
 
 use cm_info;
 
-class category_learning_object
-{
+defined('MOODLE_INTERNAL') || die;
+
+class category_learning_object {
     /** @var cm_info Moodle activity object for this learning object. */
     public $activity = null;
 
@@ -28,8 +43,7 @@ class category_learning_object
     /**
      * @return float|int Just returns modified duration, but in hours, not seconds.
      */
-    public function get_modified_duration_in_hours()
-    {
+    public function get_modified_duration_in_hours() {
         return $this->modifieddurationsec / 60 / 60;
     }
 
@@ -38,8 +52,7 @@ class category_learning_object
      * category_learning_object constructor.
      * @param cm_info $activity
      */
-    public function __construct($activity)
-    {
+    public function __construct($activity) {
         $this->activity = $activity;
     }
 }

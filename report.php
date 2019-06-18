@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file is responsible for producing the personalschedule reports
+ * This file is responsible for producing the personalschedule reports.
  *
  * @package   mod_personalschedule
  * @copyright 2019 onwards Vladislav Kovalev  snouwer@gmail.com
@@ -142,8 +141,7 @@ if (empty($action)) {
 
 echo $OUTPUT->box_end();
 
-echo $OUTPUT->spacer(array('height' => 30, 'width' => 30, 'br' => true)); // should be done with CSS instead
-
+echo $OUTPUT->spacer(array('height' => 30, 'width' => 30, 'br' => true)); // TODO: Should be done with CSS instead.
 
 // Functions to print report.
 
@@ -196,11 +194,10 @@ function show_student_report(
     echo $OUTPUT->user_picture($user, array('courseid' => $course->id));
     echo "</p>";
 
-    //TODO: перевод
+    // TODO: Локализация.
     echo "<h4>Заполненное расписание пользователя</h4>";
     echo "<p>При щелчке на ячейку, отобразится список предложенных элементов в этот день</p>";
     personalschedule_print_schedule_table($personalschedule->id, $user->id);
-
 
     $proposeditems = mod_personalschedule_proposer::get_all_proposed_items_from_cache(
         $personalschedule->id, $course->id, $user->id);
@@ -216,10 +213,7 @@ function show_student_report(
 
     printf("%d элементов<br>", count($proposeditems));
 
-
-
     foreach ($proposeditems as $proposeditem) {
-
         if (!key_exists($proposeditem->dayperiodinfo->weekidx, $grouppedproposeditems)) {
             $grouppedproposeditems[$proposeditem->dayperiodinfo->weekidx] = array();
         }
@@ -236,16 +230,15 @@ function show_student_report(
     $userscheduletimeinfo = personalschedule_get_schedule_creation_modified_time($personalschedule->id, $user->id);
     $dateformat = get_string('strftimedatefullshort', 'langconfig');
 
-
     foreach ($grouppedproposeditems as $weekidx => $weekproposeditems) {
-        //TODO: локализация
+        // TODO: Локализация.
         foreach ($weekproposeditems as $dayidx => $dayproposeditems) {
             $daylocalizedname =
                 mod_personalschedule_proposer_ui::personalschedule_get_day_localize_from_idx($dayidx);
             echo "<p>$daylocalizedname</p>";
 
-
-            $dayfulltimecreated = $userscheduletimeinfo->timecreated + (($weekidx ) * 7 * 24 * 60 * 60) + (($dayidx * 0) * 24 * 60 * 60);
+            $dayfulltimecreated = $userscheduletimeinfo->timecreated + (($weekidx ) * 7 * 24 * 60 * 60) +
+                (($dayidx * 0) * 24 * 60 * 60);
             echo html_writer::tag("p", userdate($dayfulltimecreated, $dateformat));
             echo html_writer::tag("p", userdate($userscheduletimeinfo->timecreated, $dateformat));
             foreach ($dayproposeditems as $proposeditem) {
@@ -378,7 +371,8 @@ function show_download_report(
         echo $OUTPUT->container_end();
 
     } else {
-        echo html_writer::tag('p', get_string("nobodyyet", "personalschedule"), array('class' => 'centerpara'));
+        echo html_writer::tag('p', get_string("nobodyyet", "personalschedule"),
+            array('class' => 'centerpara'));
     }
 }
 

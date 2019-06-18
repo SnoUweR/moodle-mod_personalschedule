@@ -1,4 +1,27 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ *
+ * @package    mod_personalschedule
+ * @copyright  2019 onwards Vladislav Kovalev snouwer@gmail.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die;
 
 use mod_personalschedule\items\schedule;
 
@@ -19,14 +42,13 @@ class behat_generator extends behat_base {
         $personalschedule = $DB->get_record('personalschedule', array('name' => $personalschedulename),
             '*', MUST_EXIST);
 
-
         $courseid = $personalschedule->course;
         $coursemodules = get_array_of_activities($courseid);
 
-        /** @var array $cmprops Array key - cm id. */
+        /** @var array $cmprops */
+        // Array key - cm id.
         $cmprops = array();
-        foreach ($coursemodules as $coursemodule)
-        {
+        foreach ($coursemodules as $coursemodule) {
             $cmprop = new stdClass();
             $cmprop->personalschedule = $personalschedule->id;
             $cmprop->cm = $coursemodule->cm;
@@ -46,14 +68,13 @@ class behat_generator extends behat_base {
      * @throws coding_exception
      * @throws dml_exception
      */
-    private static function set_cm_props($personalscheduleid, $cmprops)
-    {
+    private static function set_cm_props($personalscheduleid, $cmprops) {
         global $DB;
 
-        $delete_conditions = array();
-        $delete_conditions["personalschedule"] = $personalscheduleid;
+        $deleteconditions = array();
+        $deleteconditions["personalschedule"] = $personalscheduleid;
 
-        $DB->delete_records("personalschedule_cm_props", $delete_conditions);
+        $DB->delete_records("personalschedule_cm_props", $deleteconditions);
         $DB->insert_records("personalschedule_cm_props", $cmprops);
     }
 
@@ -76,18 +97,18 @@ class behat_generator extends behat_base {
 
         $schedule = new schedule();
 
-        $mindayidx =  mod_personalschedule_config::dayindexmin;
-        $maxdayidx = mod_personalschedule_config::dayindexmax;
+        $mindayidx = mod_personalschedule_config::DAYINDEXMIN;
+        $maxdayidx = mod_personalschedule_config::DAYINDEXMAX;
 
         for ($dayidx = $mindayidx; $dayidx <= $maxdayidx; $dayidx++) {
             for ($periodidx = 2; $periodidx <= 11; $periodidx++) {
                 $schedule->add_status(
-                    $dayidx, $periodidx, mod_personalschedule_config::statussleep, 0);
+                    $dayidx, $periodidx, mod_personalschedule_config::STATUSSLEEP, 0);
             }
         }
 
         $schedule->fill_empty_day_periods_with_status(
-            mod_personalschedule_config::statusfree, 1);
+            mod_personalschedule_config::STATUSFREE, 1);
 
         self::set_schedule($personalschedule->id, $userid, $schedule, 18);
 
@@ -101,37 +122,34 @@ class behat_generator extends behat_base {
      * @throws coding_exception
      * @throws dml_exception
      */
-    private static function set_schedule($personalscheduleid, $userid, $schedule, $age)
-    {
+    private static function set_schedule($personalscheduleid, $userid, $schedule, $age) {
         global $DB;
-        $delete_conditions = array();
-        $delete_conditions["userid"] = $userid;
-        $delete_conditions["personalschedule"] = $personalscheduleid;
+        $deleteconditions = array();
+        $deleteconditions["userid"] = $userid;
+        $deleteconditions["personalschedule"] = $personalscheduleid;
 
-        $schedule_inserts = array();
+        $scheduleinserts = array();
         $statuses = $schedule->get_statuses();
-        foreach ($statuses as $day_idx => $val) {
-            foreach ($val as $period_idx => $check_status)
-            {
+        foreach ($statuses as $dayidx => $val) {
+            foreach ($val as $periodidx => $checkstatus) {
                 $newdata = new stdClass();
                 $newdata->userid = $userid;
                 $newdata->personalschedule = $personalscheduleid;
-                $newdata->period_idx = $period_idx;
-                $newdata->day_idx = $day_idx;
-                $newdata->check_status = $check_status;
+                $newdata->period_idx = $periodidx;
+                $newdata->day_idx = $dayidx;
+                $newdata->check_status = $checkstatus;
 
-                $schedule_inserts[] = $newdata;
+                $scheduleinserts[] = $newdata;
             }
 
         }
 
-        $DB->delete_records("personalschedule_schedules", $delete_conditions);
-        $DB->insert_records("personalschedule_schedules", $schedule_inserts);
+        $DB->delete_records("personalschedule_schedules", $deleteconditions);
+        $DB->insert_records("personalschedule_schedules", $scheduleinserts);
 
         $readinesses = $schedule->get_readinesses();
         $readinessinserts = array();
-        foreach ($readinesses as $periodidx => $readinessstatus)
-        {
+        foreach ($readinesses as $periodidx => $readinessstatus) {
             $newdata = new stdClass();
             $newdata->userid = $userid;
             $newdata->personalschedule = $personalscheduleid;
@@ -141,10 +159,10 @@ class behat_generator extends behat_base {
             $readinessinserts[] = $newdata;
         }
 
-        $DB->delete_records("personalschedule_readiness", $delete_conditions);
+        $DB->delete_records("personalschedule_readiness", $deleteconditions);
         $DB->insert_records("personalschedule_readiness", $readinessinserts);
 
-        $alreadysubmitted = $DB->record_exists("personalschedule_usrattempts", $delete_conditions);
+        $alreadysubmitted = $DB->record_exists("personalschedule_usrattempts", $deleteconditions);
 
         $usrattemptobject = new stdClass();
         $usrattemptobject->userid = $userid;
@@ -158,16 +176,18 @@ class behat_generator extends behat_base {
             $DB->insert_record("personalschedule_usrattempts", $usrattemptobject);
         }
 
-
         $ageinsert = new stdClass();
         $ageinsert->userid = $userid;
         $ageinsert->personalschedule = $personalscheduleid;
 
-        if ($age < mod_personalschedule_config::agemin) $age = mod_personalschedule_config::agemin;
-        else if ($age > mod_personalschedule_config::agemax) $age = mod_personalschedule_config::agemax;
+        if ($age < mod_personalschedule_config::AGEMIN) {
+            $age = mod_personalschedule_config::AGEMIN;
+        } else if ($age > mod_personalschedule_config::AGEMAX) {
+            $age = mod_personalschedule_config::AGEMAX;
+        }
 
         $ageinsert->age = $age;
-        $DB->delete_records("personalschedule_user_props", $delete_conditions);
+        $DB->delete_records("personalschedule_user_props", $deleteconditions);
         $DB->insert_record("personalschedule_user_props", $ageinsert);
     }
 

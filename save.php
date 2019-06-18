@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -30,7 +29,7 @@ if (!$formdata = data_submitted() or !confirm_sesskey()) {
     print_error('cannotcallscript');
 }
 
-$id = required_param('id', PARAM_INT);    // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID.
 
 if (!$cm = get_coursemodule_from_id('personalschedule', $id)) {
     print_error('invalidcoursemodule');

@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Data provider.
  *
@@ -23,6 +22,7 @@
  */
 
 namespace mod_personalschedule\privacy;
+
 defined('MOODLE_INTERNAL') || die();
 
 use context;
@@ -47,7 +47,7 @@ class provider implements
      * @param collection $collection The initialised collection to add items to.
      * @return collection A listing of user data stored through this system.
      */
-    public static function get_metadata(collection $collection) : collection {
+    public static function get_metadata(collection $collection): collection {
         $collection->add_database_table('personalschedule_readiness', [
             'userid' => 'privacy:metadata:readiness:userid',
             'period_idx' => 'privacy:metadata:readiness:period_idx',
@@ -91,7 +91,7 @@ class provider implements
      * @param int $userid The user to search.
      * @return contextlist $contextlist The contextlist containing the list of contexts used in this plugin.
      */
-    public static function get_contexts_for_userid(int $userid) : \core_privacy\local\request\contextlist {
+    public static function get_contexts_for_userid(int $userid): \core_privacy\local\request\contextlist {
         $contextlist = new \core_privacy\local\request\contextlist();
 
         $sql = "SELECT DISTINCT ctx.id
@@ -115,10 +115,10 @@ class provider implements
                AND ss.userid = :userid3
 			LEFT JOIN {personalschedule_user_props} sup
                 ON sup.personalschedule = s.id
-               AND sup.userid = :userid4	
+               AND sup.userid = :userid4
 			LEFT JOIN {personalschedule_usrattempts} sua
                 ON sua.personalschedule = s.id
-               AND sua.userid = :userid5							      
+               AND sua.userid = :userid5
          LEFT JOIN {personalschedule_analysis} san
                 ON san.personalschedule = s.id
                AND san.userid = :userid6
@@ -220,7 +220,6 @@ class provider implements
                        AND qa.userid = :userid
               ORDER BY cm.id ASC";
 
-
         $proposes = $DB->get_recordset_sql($proposessql, $params);
 
         $analysissql = "SELECT cm.id AS cmid,
@@ -238,7 +237,6 @@ class provider implements
 
         /** @var array[][][] $attemptdata */
         $attemptdata = [];
-
 
         foreach ($schedule as $schedulerecord) {
             if (!key_exists($schedulerecord->cmid, $attemptdata)) {
@@ -350,7 +348,7 @@ class provider implements
         global $DB;
 
         $userid = $contextlist->get_user()->id;
-        $cmids = array_reduce($contextlist->get_contexts(), function($carry, $context) {
+        $cmids = array_reduce($contextlist->get_contexts(), function ($carry, $context) {
             if ($context->contextlevel == CONTEXT_MODULE) {
                 $carry[] = $context->instanceid;
             }
@@ -401,6 +399,6 @@ class provider implements
      */
     protected static function get_personalschedule_id_from_context(context_module $context) {
         $cm = get_coursemodule_from_id('personalschedule', $context->instanceid);
-        return $cm ? (int) $cm->instance : 0;
+        return $cm ? (int)$cm->instance : 0;
     }
 }

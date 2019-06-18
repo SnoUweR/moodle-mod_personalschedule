@@ -98,16 +98,13 @@ if ($personalschedulealreadydone && !$forceedit) {
     $totalcoursedurationdisplayvalue = $totalcoursedurationseconds;
 
     $totalcoursedurationtext = get_string('durationformat_seconds', 'personalschedule');
-    if ($totalcoursedurationseconds >= 60)
-    {
+    if ($totalcoursedurationseconds >= 60) {
         $totalcoursedurationtext = get_string('durationformat_minutes', 'personalschedule');
         $totalcoursedurationdisplayvalue = $totalcoursedurationminutes;
-        if ($totalcoursedurationminutes >= 60)
-        {
+        if ($totalcoursedurationminutes >= 60) {
             $totalcoursedurationdisplayvalue = $totalcoursedurationhours;
             $totalcoursedurationtext = get_string('durationformat_hours', 'personalschedule');
-            if ($totalcoursedurationhours >= 24)
-            {
+            if ($totalcoursedurationhours >= 24) {
                 $totalcoursedurationdisplayvalue = $totalcoursedurationdays;
                 $totalcoursedurationtext = get_string('durationformat_days', 'personalschedule');
             }
@@ -144,18 +141,22 @@ if ($personalschedulealreadydone && !$forceedit) {
     while ($elapsedcoursehours > 0) {
         for ($dayidx = 1; $dayidx <= 7; $dayidx++) {
             for ($periodidx = 0; $periodidx < 24; $periodidx++) {
-                $check_status = $scheduledata[$dayidx][$periodidx];
-                if ($check_status == mod_personalschedule_config::statusfree) {
+                $checkstatus = $scheduledata[$dayidx][$periodidx];
+                if ($checkstatus == mod_personalschedule_config::STATUSFREE) {
                     $elapsedcoursehours--;
                     $atleastonefree = true;
                 }
             }
 
-            if ($elapsedcoursehours <= 0) break;
+            if ($elapsedcoursehours <= 0) {
+                break;
+            }
             $scheduledcoursedurationdays++;
         }
 
-        if (!$atleastonefree) break;
+        if (!$atleastonefree) {
+            break;
+        }
     }
 
     echo '<p>'. get_string('totalcourseduration_const', 'personalschedule').

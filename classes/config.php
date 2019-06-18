@@ -26,46 +26,46 @@ defined('MOODLE_INTERNAL') || die;
 
 abstract class mod_personalschedule_config {
 
-    const statussleep = -1;
-    const statusbusy = 0;
-    const statusfree = 1;
+    const STATUSSLEEP = -1;
+    const STATUSBUSY = 0;
+    const STATUSFREE = 1;
 
-    const prefixhiddeninput = 'pers';
-    const separatorhiddeninput = ';';
-    const keyprefixreadiness = '-2';
+    const PREFIXHIDDENINPUT = 'pers';
+    const SEPARATORHIDDENINPUT = ';';
+    const KEYPREFIXREADINESS = '-2';
 
-    const cmpropkeyduration = 'cm_duration';
-    const cmpropkeycategory = 'cm_category';
-    const cmpropkeyweight = 'cm_weight';
-    const cmpropkeyisignored = 'cm_is_ignored';
+    const CMPROPKEYDURATION = 'cm_duration';
+    const CMPROPKEYCATEGORY = 'cm_category';
+    const CMPROPKEYWEIGHT = 'cm_weight';
+    const CMPROPKEYISIGNORED = 'cm_is_ignored';
 
-    const dayindexmin = 1;
-    const dayindexmax = 7;
+    const DAYINDEXMIN = 1;
+    const DAYINDEXMAX = 7;
 
-    const agemin = 5;
-    const agemax = 105;
+    const AGEMIN = 5;
+    const AGEMAX = 105;
 
-    const periodindexmin = 0;
-    const periodindexmax = 23;
+    const PERIODINDEXMIN = 0;
+    const PERIODINDEXMAX = 23;
 
-    const ignoredmodnames = array('personalschedule', 'forum', 'label', 'workshop', 'chat');
+    const IGNOREDMODNAMES = array('personalschedule', 'forum', 'label', 'workshop', 'chat');
 
-    const personalschedulemodname = "personalschedule";
+    const PERSONALSCHEDULEMODNAME = "personalschedule";
 
-    const lecturesmodnames = array(
+    const LECTURESMODNAMES = array(
         'resource', 'data', 'wiki', 'lti', 'glossary', 'lesson', 'scorm', 'url', 'book', 'folder', 'page', 'resource');
 
-    const practicemodnames = array(
+    const PRACTICEMODNAMES = array(
         'quiz', 'survey', 'assign', 'feedback', 'choice');
 
-    const maxattemptstoignorecategory = 5;
+    const MAXATTEMPTSTOIGNORECATEGORY = 5;
 
-    const minimumrelaxtimeinminutes = 10;
+    const MINIMUMRELAXTIMEINMINUTES = 10;
 
-    const minpercenttopass = 25;
+    const MINPERCENTSTOPASS = 25;
 
-    const skipcategorieswithoutpractice = false;
-    const skipcompletedcategories = true;
+    const SKIPCATEGORIESWITHOUTPRACTICE = false;
+    const SKIPCOMPLETEDCATEGORIES = true;
 
-    const daystosendschedulenotify = 2;
+    const DAYSTOSENDSCHEDULENOTIFY = 2;
 }

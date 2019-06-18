@@ -62,7 +62,7 @@ if ($personalschedulealreadydone) {
         $contextmodule = context_module::instance($cm->id);
         $adminids = get_users_by_capability($contextmodule, 'moodle/course:update', 'u.id');
         if (count($adminids) == 0) {
-            // TODO: Show error message.
+            notice(get_string('adminnotify_error', 'personalschedule'), "$CFG->wwwroot/my");
         } else {
             $subject = get_string('adminnotifyemail_title', 'personalschedule', $course->shortname);
             $courseurl = course_get_url($course->id);

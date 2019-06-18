@@ -51,8 +51,8 @@ class schedule_wrong_schedule_submitted extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' submitted a response for the personalschedule with course module id 
-        '$this->contextinstanceid'. No free slots.";
+        return "The user with id '$this->userid' submitted a response for the personalschedule with course module id '".
+            "$this->contextinstanceid'. No free slots.";
     }
 
     /**

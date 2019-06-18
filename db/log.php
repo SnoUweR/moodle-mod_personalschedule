@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -27,10 +26,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $logs = array(
-    array('module'=>'personalschedule', 'action'=>'add', 'mtable'=>'personalschedule', 'field'=>'name'),
-    array('module'=>'personalschedule', 'action'=>'update', 'mtable'=>'personalschedule', 'field'=>'name'),
-    array('module'=>'personalschedule', 'action'=>'download', 'mtable'=>'personalschedule', 'field'=>'name'),
-    array('module'=>'personalschedule', 'action'=>'view form', 'mtable'=>'personalschedule', 'field'=>'name'),
-    array('module'=>'personalschedule', 'action'=>'view report', 'mtable'=>'personalschedule', 'field'=>'name'),
-    array('module'=>'personalschedule', 'action'=>'submit', 'mtable'=>'personalschedule', 'field'=>'name'),
+    array('module' => 'personalschedule', 'action' => 'add', 'mtable' => 'personalschedule', 'field' => 'name'),
+    array('module' => 'personalschedule', 'action' => 'update', 'mtable' => 'personalschedule', 'field' => 'name'),
+    array('module' => 'personalschedule', 'action' => 'download', 'mtable' => 'personalschedule', 'field' => 'name'),
+    array('module' => 'personalschedule', 'action' => 'view form', 'mtable' => 'personalschedule', 'field' => 'name'),
+    array('module' => 'personalschedule', 'action' => 'view report', 'mtable' => 'personalschedule', 'field' => 'name'),
+    array('module' => 'personalschedule', 'action' => 'submit', 'mtable' => 'personalschedule', 'field' => 'name'),
 );

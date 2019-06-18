@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/mod/personalschedule/lib.php');
-include_once($CFG->libdir . '/gradelib.php');
+require_once($CFG->libdir . '/gradelib.php');
 
 class mod_personalschedule_proposer_ui {
 
@@ -57,7 +57,7 @@ class mod_personalschedule_proposer_ui {
      * @throws coding_exception
      */
     private static function get_approximated_localized_duration($durationinseconds) {
-        mod_personalschedule_proposer_ui::get_duration_components(
+        self::get_duration_components(
             $durationinseconds, $days, $hours, $minutes, $seconds);
         if ($hours >= 1) {
             if ($minutes <= 15) {
@@ -89,8 +89,7 @@ class mod_personalschedule_proposer_ui {
      * @return string Localized duration.
      * @throws coding_exception
      */
-    public static function get_localized_duration($durationinseconds)
-    {
+    public static function get_localized_duration($durationinseconds) {
         $durationinminutes = $durationinseconds / 60;
         $durationinhours = $durationinminutes / 60;
 
@@ -214,7 +213,6 @@ class mod_personalschedule_proposer_ui {
         } else {
             $cell1 = new html_table_cell();
 
-
             $cell1->text = sprintf(get_string('proposes_noschedule', 'personalschedule'),
                 "$CFG->wwwroot/mod/personalschedule/view.php?id=$personalschedulecm->id");
             $cell1->colspan = count($tablecourseelements->head);
@@ -242,11 +240,11 @@ class mod_personalschedule_proposer_ui {
      * @return string HTML code with table.
      */
     private static function table_to_html(html_table $table, $tophead = '') {
-        // prepare table data and populate missing properties with reasonable defaults
+        // Prepare table data and populate missing properties with reasonable defaults.
         if (!empty($table->align)) {
             foreach ($table->align as $key => $aa) {
                 if ($aa) {
-                    $table->align[$key] = 'text-align:'. fix_align_rtl($aa) .';';  // Fix for RTL languages
+                    $table->align[$key] = 'text-align:'. fix_align_rtl($aa) .';';  // Fix for RTL languages.
                 } else {
                     $table->align[$key] = null;
                 }
@@ -291,7 +289,7 @@ class mod_personalschedule_proposer_ui {
             $table->attributes['class'] .= ' boxalign' . $table->tablealign;
         }
 
-        // explicitly assigned properties override those defined via $table->attributes
+        // Explicitly assigned properties override those defined via $table->attributes.
         $table->attributes['class'] = trim($table->attributes['class']);
         $attributes = array_merge($table->attributes, array(
             'id'            => $table->id,
@@ -322,7 +320,6 @@ class mod_personalschedule_proposer_ui {
 
             $output .= html_writer::start_tag('thead', array()) . "\n";
 
-
             if (!empty($tophead)) {
                 $output .= html_writer::start_tag('tr', array()) . "\n";
                 $output .= html_writer::tag("th", $tophead, array("colspan" => count($table->head))) . "\n";
@@ -334,7 +331,7 @@ class mod_personalschedule_proposer_ui {
             $lastkey = end($keys);
 
             foreach ($table->head as $key => $heading) {
-                // Convert plain string headings into html_table_cell objects
+                // Convert plain string headings into html_table_cell objects.
                 if (!($heading instanceof html_table_cell)) {
                     $headingtext = $heading;
                     $heading = new html_table_cell();
@@ -380,9 +377,10 @@ class mod_personalschedule_proposer_ui {
 
             if (empty($table->data)) {
                 // For valid XHTML strict every table must contain either a valid tr
-                // or a valid tbody... both of which must contain a valid td
+                // or a valid tbody... both of which must contain a valid td.
                 $output .= html_writer::start_tag('tbody', array('class' => 'empty'));
-                $output .= html_writer::tag('tr', html_writer::tag('td', '', array('colspan'=>count($table->head))));
+                $output .= html_writer::tag('tr', html_writer::tag('td', '',
+                    array('colspan' => count($table->head))));
                 $output .= html_writer::end_tag('tbody');
             }
         }
@@ -394,9 +392,10 @@ class mod_personalschedule_proposer_ui {
 
             foreach ($table->data as $key => $row) {
                 if (($row === 'hr') && ($countcols)) {
-                    $output .= html_writer::tag('td', html_writer::tag('div', '', array('class' => 'tabledivider')), array('colspan' => $countcols));
+                    $output .= html_writer::tag('td', html_writer::tag('div', '',
+                        array('class' => 'tabledivider')), array('colspan' => $countcols));
                 } else {
-                    // Convert array rows to html_table_rows and cell strings to html_table_cell objects
+                    // Convert array rows to html_table_rows and cell strings to html_table_cell objects.
                     if (!($row instanceof html_table_row)) {
                         $newrow = new html_table_row();
 
@@ -427,10 +426,10 @@ class mod_personalschedule_proposer_ui {
                     $keys2 = array_keys($row->cells);
                     $lastkey = end($keys2);
 
-                    $gotlastkey = false; //flag for sanity checking
+                    $gotlastkey = false; // Flag for sanity checking.
                     foreach ($row->cells as $key => $cell) {
                         if ($gotlastkey) {
-                            //This should never happen. Why do we have a cell after the last cell?
+                            // This should never happen. Why do we have a cell after the last cell?
                             mtrace("A cell with key ($key) was found after the last key ($lastkey)");
                         }
 
@@ -488,8 +487,7 @@ class mod_personalschedule_proposer_ui {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    private static function get_relax_rowdata($personalitem)
-    {
+    private static function get_relax_rowdata($personalitem) {
         /** @var html_table_cell[] $tablerowdata */
         $tablerowdata = array();
 
@@ -573,7 +571,6 @@ class mod_personalschedule_proposer_ui {
         $actionsstatuslocalizedtext =
             self::get_proposed_element_actions_status_localized($actionsstatus);
 
-
         $thirdcell = new html_table_cell(
             html_writer::span($actionsstatuslocalizedtext)
         );
@@ -599,8 +596,7 @@ class mod_personalschedule_proposer_ui {
      * @return int
      * @throws dml_exception
      */
-    private static function personalschedule_get_schedule_create_time($userid, $personalscheduleid)
-    {
+    private static function personalschedule_get_schedule_create_time($userid, $personalscheduleid) {
         global $DB;
         $data = $DB->get_record(
             "personalschedule_usrattempts",
@@ -618,10 +614,9 @@ class mod_personalschedule_proposer_ui {
      * @return int Number of weeks, that have passed since user's schedule was created.
      * @throws dml_exception
      */
-    private static function personalschedule_get_week_idx($curtime, $userid, $personalscheduleid)
-    {
+    private static function personalschedule_get_week_idx($curtime, $userid, $personalscheduleid) {
         $schedulecreatedtime = self::personalschedule_get_schedule_create_time($userid, $personalscheduleid);
-        $weekscount = (int)ceil(abs($schedulecreatedtime - $curtime)/60/60/24/7);
+        $weekscount = (int)ceil(abs($schedulecreatedtime - $curtime) / 60 / 60 / 24 / 7);
         return $weekscount;
     }
 
@@ -696,7 +691,7 @@ class mod_personalschedule_proposer_ui {
      * @return string Formatted period index.
      */
     public static function personalschedule_get_period_localize_from_idx($periodidx) {
-        return $periodidx.'-'.($periodidx+1);
+        return $periodidx.'-'.($periodidx + 1);
     }
 
 }

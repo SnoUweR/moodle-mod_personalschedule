@@ -23,6 +23,8 @@
 
 namespace mod_personalschedule\task;
 
+defined('MOODLE_INTERNAL') || die;
+
 use coding_exception;
 use core_user;
 use mod_personalschedule_config;
@@ -57,13 +59,15 @@ class notify_nonactive_users extends \core\task\scheduled_task {
         }
         $time = time();
         foreach ($users as $user) {
-            if ($user->currentlogin == 0) continue;
+            if ($user->currentlogin == 0) {
+                continue;
+            }
             // TODO: Check if user has all elements completed.
 
             // If user don't join on courses for a two days.
-            if ($time - $user->currentlogin >= (mod_personalschedule_config::daystosendschedulenotify * 24 * 60 * 60)) {
+            if ($time - $user->currentlogin >= (mod_personalschedule_config::DAYSTOSENDSCHEDULENOTIFY * 24 * 60 * 60)) {
                 self::send_notification_message(0,
-                    $user->id, $user->firstname, mod_personalschedule_config::daystosendschedulenotify);
+                    $user->id, $user->firstname, mod_personalschedule_config::DAYSTOSENDSCHEDULENOTIFY);
             }
         }
     }

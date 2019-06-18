@@ -43,7 +43,6 @@ class mod_personalschedule_proposer_simple_testcase extends basic_testcase {
             null, $hourseconds, $elementperiodidxbegin, 0, $elementdaybegindayidx,
             1, 1);
 
-
         $isskipped = mod_personalschedule_proposer_ui::is_proposed_element_skipped_by_time(
             $proposedelement, $elementdaybegindayidx, $elementperiodidxbegin + 2);
 
@@ -101,7 +100,8 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
 
         // Setup test data.
         $this->course = $this->getDataGenerator()->create_course();
-        $this->personalschedule = $this->getDataGenerator()->create_module('personalschedule', array('course' => $this->course->id));
+        $this->personalschedule = $this->getDataGenerator()->create_module('personalschedule',
+            array('course' => $this->course->id));
         $this->context = context_module::instance($this->personalschedule->cmid);
         $this->cm = get_coursemodule_from_instance('personalschedule', $this->personalschedule->id);
 
@@ -180,7 +180,6 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
 
         $this->reset_for_test();
         global $DB;
-
 
         // Test user with full capabilities.
         $this->setUser($this->student);

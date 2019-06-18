@@ -24,8 +24,10 @@
 
 require_once(dirname(__FILE__).'/../../config.php');
 
-$id = required_param('id',PARAM_INT);   // course
+$id = required_param('id', PARAM_INT); // Course ID.
 
-$PAGE->set_url('/mod/personalschedule/index.php', array('id'=>$id));
+require_login($id, false);
+
+$PAGE->set_url('/mod/personalschedule/index.php', array('id' => $id));
 
 redirect("$CFG->wwwroot/course/view.php?id=$id");

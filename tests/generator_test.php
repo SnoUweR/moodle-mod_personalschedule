@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 class mod_personalschedule_generator_testcase extends advanced_testcase {
 
     public function test_create_instance() {

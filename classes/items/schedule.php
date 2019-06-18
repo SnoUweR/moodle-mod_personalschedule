@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_personalschedule\items;
 
@@ -48,9 +62,9 @@ class schedule {
             $this->statuses[$dayidx] = array();
         }
 
-        if ($checkstatus != mod_personalschedule_config::statusfree &&
-            $checkstatus != mod_personalschedule_config::statusbusy &&
-            $checkstatus != mod_personalschedule_config::statussleep) {
+        if ($checkstatus != mod_personalschedule_config::STATUSFREE &&
+            $checkstatus != mod_personalschedule_config::STATUSBUSY &&
+            $checkstatus != mod_personalschedule_config::STATUSSLEEP) {
             throw new \InvalidArgumentException(
                 "checkstatus is unknown. Input was: $checkstatus");
         }
@@ -77,26 +91,24 @@ class schedule {
      * @param int $checkstatus Schedule status (free, sleep, busy as integer).
      * @param float $readinessstatus Readiness status (float [0;1]).
      */
-    public function fill_empty_day_periods_with_status($checkstatus, $readinessstatus)
-    {
+    public function fill_empty_day_periods_with_status($checkstatus, $readinessstatus) {
         if ($readinessstatus < 0 || $readinessstatus > 1) {
             throw new \InvalidArgumentException(
                 "readinessstatus should be at range [0;1]. Input was: $readinessstatus");
         }
 
-        if ($checkstatus != mod_personalschedule_config::statusfree &&
-            $checkstatus != mod_personalschedule_config::statusbusy &&
-            $checkstatus != mod_personalschedule_config::statussleep) {
+        if ($checkstatus != mod_personalschedule_config::STATUSFREE &&
+            $checkstatus != mod_personalschedule_config::STATUSBUSY &&
+            $checkstatus != mod_personalschedule_config::STATUSSLEEP) {
             throw new \InvalidArgumentException(
                 "checkstatus is unknown. Input was: $checkstatus");
         }
 
-        $mindayidx =  \mod_personalschedule_config::dayindexmin;
-        $maxdayidx = \mod_personalschedule_config::dayindexmax;
+        $mindayidx = \mod_personalschedule_config::DAYINDEXMIN;
+        $maxdayidx = \mod_personalschedule_config::DAYINDEXMAX;
 
-        $minperiodidx =  \mod_personalschedule_config::periodindexmin;
-        $maxperiodidx = \mod_personalschedule_config::periodindexmax;
-
+        $minperiodidx = \mod_personalschedule_config::PERIODINDEXMIN;
+        $maxperiodidx = \mod_personalschedule_config::PERIODINDEXMAX;
 
         for ($dayidx = $mindayidx; $dayidx <= $maxdayidx; $dayidx++) {
 
@@ -123,14 +135,12 @@ class schedule {
      * filled with BUSY status.
      * @return int[][] Array with user's schedule statuses. First key is a dayidx, second key is a periodidx.
      */
-    public function get_statuses()
-    {
-        $mindayidx =  \mod_personalschedule_config::dayindexmin;
-        $maxdayidx = \mod_personalschedule_config::dayindexmax;
+    public function get_statuses() {
+        $mindayidx = \mod_personalschedule_config::DAYINDEXMIN;
+        $maxdayidx = \mod_personalschedule_config::DAYINDEXMAX;
 
-        $minperiodidx =  \mod_personalschedule_config::periodindexmin;
-        $maxperiodidx = \mod_personalschedule_config::periodindexmax;
-
+        $minperiodidx = \mod_personalschedule_config::PERIODINDEXMIN;
+        $maxperiodidx = \mod_personalschedule_config::PERIODINDEXMAX;
 
         for ($dayidx = $mindayidx; $dayidx <= $maxdayidx; $dayidx++) {
 
@@ -141,7 +151,7 @@ class schedule {
             for ($periodidx = $minperiodidx; $periodidx <= $maxperiodidx; $periodidx++) {
 
                 if (!key_exists($periodidx, $this->statuses[$dayidx])) {
-                    $this->statuses[$dayidx][$periodidx] = mod_personalschedule_config::statusbusy;
+                    $this->statuses[$dayidx][$periodidx] = mod_personalschedule_config::STATUSBUSY;
                 }
             }
         }
@@ -156,9 +166,8 @@ class schedule {
      * @return float[]
      */
     public function get_readinesses() {
-        $minperiodidx =  \mod_personalschedule_config::periodindexmin;
-        $maxperiodidx = \mod_personalschedule_config::periodindexmax;
-
+        $minperiodidx = \mod_personalschedule_config::PERIODINDEXMIN;
+        $maxperiodidx = \mod_personalschedule_config::PERIODINDEXMAX;
 
         for ($periodidx = $minperiodidx; $periodidx <= $maxperiodidx; $periodidx++) {
 

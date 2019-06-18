@@ -31,26 +31,26 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/notification'], functi
     var AgeMin = 5;
     var AgeMax = 105;
     var strings = [
-        {
-            key: 'validation_schedulesetting',
-            component: 'personalschedule'
-        },
-        {
-            key: 'validation_readinesssetting',
-            component: 'personalschedule'
-        },
-        {
-            key: 'validation_sleep',
-            component: 'personalschedule'
-        },
-        {
-            key: 'validation_busy',
-            component: 'personalschedule'
-        },
-        {
-            key: 'validation_free',
-            component: 'personalschedule'
-        },
+    {
+        key: 'validation_schedulesetting',
+        component: 'personalschedule'
+    },
+    {
+        key: 'validation_readinesssetting',
+        component: 'personalschedule'
+    },
+    {
+        key: 'validation_sleep',
+        component: 'personalschedule'
+    },
+    {
+        key: 'validation_busy',
+        component: 'personalschedule'
+    },
+    {
+        key: 'validation_free',
+        component: 'personalschedule'
+    },
     ];
 
     var ScheduleSettingString = '';

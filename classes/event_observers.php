@@ -41,11 +41,11 @@ class event_observers {
 
         global $DB, $CFG;
 
-        if (in_array($event->other['modulename'], mod_personalschedule_config::ignoredmodnames)) {
+        if (in_array($event->other['modulename'], mod_personalschedule_config::IGNOREDMODNAMES)) {
             return;
         }
 
-        $courseinfo = $DB->get_record("course", array("id" => $event->courseid),"fullname, shortname");
+        $courseinfo = $DB->get_record("course", array("id" => $event->courseid), "fullname, shortname");
         $personalschedules = personalschedule_get_personalschedule_cms_by_course_id($event->courseid);
 
         if ($personalschedules === false) {
