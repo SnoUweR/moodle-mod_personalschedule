@@ -105,7 +105,6 @@ class mod_personalschedule_mod_form extends moodleform_mod {
             $mform->addRule($durationelementname, null, 'required', null, 'client');
             $mform->addRule($categoryelementname, null, 'required', null, 'client');
             $mform->addRule($weightelementname, null, 'required', null, 'client');
-            $mform->addRule($isignoredelementname, null, 'required', null, 'client');
 
             $mform->addElement('html', "<hr>");
         }

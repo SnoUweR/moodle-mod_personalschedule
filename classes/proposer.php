@@ -962,8 +962,6 @@ GROUP BY l.userid, l.contextinstanceid";
         if (is_callable(array($assign, "get_user_submission"))) {
             $submission = $assign->get_user_submission($userid, false);
             $ispassed = $submission && $submission->status == ASSIGN_SUBMISSION_STATUS_SUBMITTED;
-            // TODO: тут есть момент с тем, что если мы прошли тестирование, а потом нам его повторно дали,
-            // то когда будем смотреть actions, то оно не поменяется, и мы можем посчитать, что якобы ничего не делали.
         } else {
             $ispassed = true;
         }

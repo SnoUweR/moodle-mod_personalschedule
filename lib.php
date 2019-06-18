@@ -794,24 +794,6 @@ function personalschedule_get_completion_state($course, $cm, $userid, $type) {
 }
 
 /**
- * Tries to get cm_info[] of mod_personalschedule instances from the course.
- * If there aren't instances of the module, then returns false.
- * @param int $courseid Course ID.
- * @return cm_info[]|false mod_personalschedule instances from the course. false if there aren't instances.
- * @throws moodle_exception
- */
-function personalschedule_get_personalschedule_cms_by_course_id($courseid) {
-    $modinfo = get_fast_modinfo($courseid);
-
-    $foundcms = $modinfo->get_instances_of(mod_personalschedule_config::PERSONALSCHEDULEMODNAME);
-
-    if (empty($foundcms)) {
-        return false;
-    }
-    return $foundcms;
-}
-
-/**
  * Send message (with parameter 'notification' set to true) through Messages API to a specific user.
  * @param string $name Message provider name from messages.php.
  * @param int $courseid Course ID.

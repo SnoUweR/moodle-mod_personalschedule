@@ -23,12 +23,33 @@
  */
 
 namespace mod_personalschedule;
+use cm_info;
 use html_writer;
 use mod_personalschedule_config;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 
 class event_observers {
+
+    /**
+     * Tries to get cm_info[] of mod_personalschedule instances from the course.
+     * If there aren't instances of the module, then returns false.
+     * @param int $courseid Course ID.
+     * @return cm_info[]|false mod_personalschedule instances from the course. false if there aren't instances.
+     * @throws moodle_exception
+     */
+    private static function get_personalschedule_cms_by_course_id($courseid) {
+        $modinfo = get_fast_modinfo($courseid);
+
+        $foundcms = $modinfo->get_instances_of(mod_personalschedule_config::PERSONALSCHEDULEMODNAME);
+
+        if (empty($foundcms)) {
+            return false;
+        }
+        return $foundcms;
+    }
+
     /**
      * Course module was created.
      *
@@ -46,7 +67,7 @@ class event_observers {
         }
 
         $courseinfo = $DB->get_record("course", array("id" => $event->courseid), "fullname, shortname");
-        $personalschedules = personalschedule_get_personalschedule_cms_by_course_id($event->courseid);
+        $personalschedules = self::get_personalschedule_cms_by_course_id($event->courseid);
 
         if ($personalschedules === false) {
             return;
@@ -116,7 +137,7 @@ class event_observers {
     public static function user_enrolment_deleted($event) {
         global $DB;
 
-        $personalschedules = personalschedule_get_personalschedule_cms_by_course_id($event->courseid);
+        $personalschedules = self::get_personalschedule_cms_by_course_id($event->courseid);
 
         if ($personalschedules === false) {
             return;

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * mod_personalschedule generator tests
+ * mod_personalschedule generator tests.
  *
  * @package    mod_personalschedule
  * @category   test

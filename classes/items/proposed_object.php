@@ -21,8 +21,7 @@ abstract class proposed_object {
     /** @var int */
     public $modifieddurationsec = 0;
 
-    /** @var day_period_info Описывает пользовательские сутки (не обычные), к которым принадлежит
-     * данный предложенный учебный элемент */
+    /** @var day_period_info Describes the user's day (not real day) to which this proposed training element belongs. */
     public $dayperiodinfo;
 
     /** @var float|int */

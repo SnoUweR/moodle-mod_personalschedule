@@ -15,20 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- *
+ * Personalschedule activity definitions.
  * @package    mod_personalschedule
  * @copyright  2019 onwards Vladislav Kovalev snouwer@gmail.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
-
 use mod_personalschedule\items\schedule;
 
-require_once(__DIR__ . '/../../../lib/behat/behat_base.php');
+require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
-class behat_generator extends behat_base {
-
+class behat_mod_personalschedule extends behat_base {
     /**
      * @Given /^I fill personalschedule "(?P<personalschedulename>(?:[^"]|\\")*)" activity settings with the test data$/
      * @param $personalschedulename
@@ -182,8 +179,10 @@ class behat_generator extends behat_base {
 
         if ($age < mod_personalschedule_config::AGEMIN) {
             $age = mod_personalschedule_config::AGEMIN;
-        } else if ($age > mod_personalschedule_config::AGEMAX) {
-            $age = mod_personalschedule_config::AGEMAX;
+        } else {
+            if ($age > mod_personalschedule_config::AGEMAX) {
+                $age = mod_personalschedule_config::AGEMAX;
+            }
         }
 
         $ageinsert->age = $age;
@@ -211,65 +210,67 @@ class behat_generator extends behat_base {
         $userid = $this->get_session_user()->id;
         for ($currenttry = 1; $currenttry <= $maxtryings; $currenttry++) {
             $this->delete_proposed_cache($userid);
-            $this->getSession()->reload();
 
-            $containerpageloadtime = $this->get_selected_node("css_element", ".timeused");
-            $containerdbqueries = $this->get_selected_node("css_element", ".dbqueries");
-            $containerram = $this->get_selected_node("css_element", ".memoryused");
+            init_performance_info();
+            $this->getSession()->reload();
+            $perfomanceinfo = get_performance_info();
 
             $data .= sprintf("---\n%s (%d) WITHOUT CACHE\n%s\n%s\n%s\n---\n",
                 $tag,
                 $currenttry,
-                $containerpageloadtime->getHtml(),
-                $containerdbqueries->getHtml(),
-                $containerram->getHtml());
+                $perfomanceinfo['realtime'],
+                $perfomanceinfo['dbqueries'],
+                display_size($perfomanceinfo['memory_total']));
         }
 
         for ($currenttry = 1; $currenttry <= $maxtryings; $currenttry++) {
+            init_performance_info();
             $this->getSession()->reload();
-
-            $containerpageloadtime = $this->get_selected_node("css_element", ".timeused");
-            $containerdbqueries = $this->get_selected_node("css_element", ".dbqueries");
-            $containerram = $this->get_selected_node("css_element", ".memoryused");
+            $perfomanceinfo = get_performance_info();
 
             $data .= sprintf("---\n%s (%d) WITH CACHE\n%s\n%s\n%s\n---\n",
                 $tag,
                 $currenttry,
-                $containerpageloadtime->getHtml(),
-                $containerdbqueries->getHtml(),
-                $containerram->getHtml());
+                $perfomanceinfo['realtime'],
+                $perfomanceinfo['dbqueries'],
+                display_size($perfomanceinfo['memory_total']));
         }
 
         file_put_contents('C:\\moodle\\log.txt', $data, FILE_APPEND);
-        $data = $this->get_selected_node("css_element", "body")->getHtml();
-        file_put_contents("C:\\moodle\\$tag.txt", $data);
         return true;
     }
 
     /**
-     * Opens Moodle homepage.
+     * Creates the course with specific name and specific size as numeric index.
      *
-     * @Given /^I am on my homepage$/
-     */
-    public function i_am_on_my_homepage() {
-        $this->getSession()->visit($this->locate_path('/my'));
-    }
-
-    /**
-     * Creates the specified element. More info about available elements in http://docs.moodle.org/dev/Acceptance_testing#Fixtures.
-     *
-     * @Given /^the course "(?P<courseshortname>(?:[^"]|\\")*)" with "(?P<coursesize>\d+)" elements exists$/
+     * @Given /^the course "(?P<courseshortname>(?:[^"]|\\")*)" with "(?P<coursesizeindex>\d+)" elements exists$/
      *
      * @throws Exception
      */
-    public function the_course_with_elements_exists($courseshortname, $coursesize) {
+    public function the_course_with_elements_exists($courseshortname, $coursesizeindex) {
         $backend = new tool_generator_course_backend(
             $courseshortname,
-            $coursesize
+            $coursesizeindex
         );
-        $id = $backend->make();
+        $backend->make();
+    }
+
+    /**
+     * Disables perfdebug config option in mdl_config.
+     *
+     * @Given /^performance debug enabled$/
+     *
+     * @throws Exception
+     */
+    public function performance_debug_enabled() {
+        global $CFG, $DB;
+        $CFG->perfdebug = 15;
+        $perfdebugobject = $DB->get_record('config', array('name' => 'perfdebug'), 'id');
+        $perfdebugobject->value = 15;
+        $DB->update_record('config', $perfdebugobject);
+        define('MDL_PERF', true);
+        define('MDL_PERFDB', true);
+        define('MDL_PERFTOLOG', true);
+        define('MDL_PERFTOFOOT', true);
     }
 }
-
-
-
