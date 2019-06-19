@@ -836,14 +836,14 @@ class mod_personalschedule_proposer {
     public static function get_user_views_info($userid, $courseid) {
         global $DB;
 
-        $sql = "SELECT cm.id as 'cmid', m.name, cm.instance, COUNT(l.id) AS 'actions'
+        $sql = "SELECT l.contextinstanceid AS cmid, m.NAME AS name, cm.INSTANCE AS instance, COUNT(l.id) AS actions
 FROM {logstore_standard_log} l
   JOIN {course_modules} cm ON cm.id = l.contextinstanceid
   JOIN {modules} m ON m.id = cm.module
 WHERE  l.userid = :userid
   AND l.courseid = :courseid
     AND l.contextlevel = :contextlevel
-GROUP BY l.userid, l.contextinstanceid";
+GROUP BY l.contextinstanceid, m.name, cm.instance";
 
         /** @var user_view_info[] $userviewsinfo */
         $userviewsinfo = array();
