@@ -12,6 +12,7 @@ cache:
 
 php:
   - "7.0"
+  - "7.2"
 
 services:
   - mysql
@@ -22,6 +23,19 @@ env:
   matrix:
     - MOODLE_BRANCH=MOODLE_34_STABLE DB=mysqli
     - MOODLE_BRANCH=MOODLE_34_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_35_STABLE DB=mysqli
+    - MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_36_STABLE DB=mysqli
+    - MOODLE_BRANCH=MOODLE_36_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_37_STABLE DB=mysqli
+    - MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
+
+matrix:
+  exclude:
+    - php: "7.0"
+      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mysqli
+    - php: "7.0"
+      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
 
 before_install:
   - phpenv config-rm xdebug.ini
