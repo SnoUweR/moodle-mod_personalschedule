@@ -831,7 +831,7 @@ class mod_personalschedule_proposer {
      * from Grades API.
      * @param int $userid: User ID.
      * @param int $courseid: Course ID.
-     * @return mod_personalschedule\items\user_view_info[] Array with user' view info items.
+     * @return mod_personalschedule\items\user_view_info[] Array with user' view info items, where the key is cmid.
      */
     public static function get_user_views_info($userid, $courseid) {
         global $DB;

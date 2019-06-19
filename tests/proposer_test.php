@@ -119,15 +119,28 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
         $this->getDataGenerator()->enrol_user($this->teacher->id, $this->course->id, $this->teacherrole->id, 'manual');
     }
 
+
+    /**
+     * @param stdClass $attempt
+     */
+    private function quiz_attempt_finish($attempt) {
+        // Process some responses from the student.
+        $tosubmit = array(1 => array('answer' => '3.14'));
+
+        $attemptobj = quiz_attempt::create($attempt->id);
+        $attemptobj->process_submitted_actions(time(), false, $tosubmit);
+        // Finish the attempt.
+        $attemptobj->process_finish(time(), false);
+    }
+
     /**
      * Create a quiz with questions including a started or finished attempt optionally
-     *
-     * @param  boolean $startattempt whether to start a new attempt
-     * @param  boolean $finishattempt whether to finish the new attempt
-     * @param  string $behaviour the quiz preferredbehaviour, defaults to 'deferredfeedback'.
+     * @param string $behaviour the quiz preferredbehaviour, defaults to 'deferredfeedback'.
      * @return array array containing the quiz, context and the attempt
+     * @throws coding_exception
+     * @throws moodle_exception
      */
-    private function create_quiz_with_questions($startattempt = false, $finishattempt = false, $behaviour = 'deferredfeedback') {
+    private function create_quiz_with_questions($behaviour = 'deferredfeedback') {
 
         // Create a new quiz with attempts.
         $quizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_quiz');
@@ -154,38 +167,15 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
         $item->gradepass = 80;
         $item->update();
 
-        if ($startattempt or $finishattempt) {
-            // Now, do one attempt.
-            $quba = question_engine::make_questions_usage_by_activity('mod_quiz', $quizobj->get_context());
-            $quba->set_preferred_behaviour($quizobj->get_quiz()->preferredbehaviour);
-
-            $timenow = time();
-            $attempt = quiz_create_attempt($quizobj, 1, false, $timenow, false, $this->student->id);
-            quiz_start_new_attempt($quizobj, $quba, $attempt, 1, $timenow);
-            quiz_attempt_save_started($quizobj, $quba, $attempt);
-            $attemptobj = quiz_attempt::create($attempt->id);
-
-            if ($finishattempt) {
-                // Process some responses from the student.
-                $tosubmit = array(1 => array('answer' => '3.14'));
-                $attemptobj->process_submitted_actions(time(), false, $tosubmit);
-                // Finish the attempt.
-                $attemptobj->process_finish(time(), false);
-            }
-            return array($quiz, $context, $quizobj, $attempt, $attemptobj, $quba);
-        } else {
-            return array($quiz, $context, $quizobj);
-        }
-
+        return array($quiz, $context, $quizobj);
     }
 
     public function test_get_user_views_info() {
 
         $this->reset_for_test();
-        global $DB;
 
         // Test user with full capabilities.
-        $this->setUser($this->student);
+        $this->setUser($this->teacher);
 
         $this->preventResetByRollback();
         set_config('enabled_stores', 'logstore_standard', 'tool_log');
@@ -206,22 +196,35 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
         $this->assertCount(0, $userviewsinfo);
 
         // Create a quiz with one attempt finished.
-        list($quiz, $context, $quizobj, $attempt, $attemptobj) = $this->create_quiz_with_questions(true, true);
+        list($quiz, $context, $quizobj) = $this->create_quiz_with_questions();
 
-        // Start a new attempt, but not finish it.
+        $this->setUser($this->student);
         $timenow = time();
-        $attempt = quiz_create_attempt($quizobj, 2, false, $timenow, false, $this->student->id);
+        $attempt = quiz_create_attempt($quizobj, 1, null, $timenow, false, $this->student->id);
         $quba = question_engine::make_questions_usage_by_activity('mod_quiz', $quizobj->get_context());
         $quba->set_preferred_behaviour($quizobj->get_quiz()->preferredbehaviour);
+
+        $userviewsinfo = mod_personalschedule_proposer::get_user_views_info($this->student->id, $this->course->id);
+        $this->assertCount(0, $userviewsinfo);
+
+        quiz_start_new_attempt($quizobj, $quba, $attempt, 1, $timenow);
+        quiz_attempt_save_started($quizobj, $quba, $attempt);
+
+        $userviewsinfo = mod_personalschedule_proposer::get_user_views_info($this->student->id, $this->course->id);
+        $this->assertCount(1, $userviewsinfo);
+        $this->assertArrayHasKey($quiz->cmid, $userviewsinfo);
+        // Actions is zero because there is attempt, but it's not finished.
+        $this->assertEquals(0, $userviewsinfo[$quiz->cmid]->actions);
+        // Attempt is not finished.
+        $this->assertEquals(0, $userviewsinfo[$quiz->cmid]->attempts);
+
+        $this->quiz_attempt_finish($attempt);
 
         $userviewsinfo = mod_personalschedule_proposer::get_user_views_info($this->student->id, $this->course->id);
         $this->assertCount(1, $userviewsinfo);
         $this->assertArrayHasKey($quiz->cmid, $userviewsinfo);
         $this->assertEquals(1, $userviewsinfo[$quiz->cmid]->attempts);
         $this->assertEquals(1, $userviewsinfo[$quiz->cmid]->actions);
-
-        quiz_start_new_attempt($quizobj, $quba, $attempt, 1, $timenow);
-        quiz_attempt_save_started($quizobj, $quba, $attempt);
 
         // Test filters. All attempts.
         $result = mod_quiz_external::get_user_attempts($quiz->id, $this->student->id, 'all', false);
@@ -235,9 +238,9 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
         );
         $event1 = \mod_quiz\event\course_module_viewed::create($params);
         $event1->trigger();
-
+        $this->setUser($this->teacher);
         $resource = $this->getDataGenerator()->create_module('resource', array('course' => $this->course->id));
-
+        $this->setUser($this->student);
         $params = array(
             'context' => context_module::instance($resource->cmid),
             'objectid' => $resource->id,
@@ -253,7 +256,7 @@ class mod_personalschedule_proposer_testcase extends externallib_advanced_testca
         $this->assertFalse($userviewsinfo[$resource->cmid] instanceof user_practice_info);
         $this->assertEquals(1, $userviewsinfo[$resource->cmid]->actions);
 
-        $this->assertCount(2, $result['attempts']);
+        $this->assertCount(1, $result['attempts']);
         return;
     }
 }
