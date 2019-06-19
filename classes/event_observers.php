@@ -92,9 +92,14 @@ class event_observers {
                 )
             );
 
-            personalschedule_send_notification_message(
-                'coursemodulecreated', $event->courseid, $event->userid, $subject, $fullmessage,
-                $courseurl, $courseinfo->shortname);
+            if (has_capability('mod/personalschedule:emailcoursemodulecreated',
+                \context_course::instance($event->courseid), $event->userid)) {
+
+                personalschedule_send_notification_message(
+                    'coursemodulecreated', $event->courseid, $event->userid, $subject, $fullmessage,
+                    $courseurl, $courseinfo->shortname);
+            }
+
         }
     }
 

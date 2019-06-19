@@ -63,6 +63,11 @@ $string['personalschedule:addinstance'] = 'Добавить новый моду�
 $string['personalschedule:download'] = 'Скачать персонализированные расписания';
 $string['personalschedule:participate'] = 'Заполнение персонализированного расписания';
 $string['personalschedule:readresponses'] = 'Просмотр расписаний других пользователей';
+
+$string['personalschedule:emailcoursemodulecreated'] = 'TODO';
+$string['personalschedule:emailusersentnotificationtoadmin'] = 'TODO';
+$string['personalschedule:longofflinereminder'] = 'TODO';
+
 $string['personalschedulesaved'] = 'Персонализированное расписание сохранено';
 $string['personalscheduletype_link'] = 'mod/personalschedule/mod';
 $string['thanksforanswers'] = 'Ваше персонализированное расписание успешно сохранено, {$a}. При нажатии на «Продолжить» Вы будете переправлены на личный кабинет, где отобразятся персонализированные учебные элементы.';

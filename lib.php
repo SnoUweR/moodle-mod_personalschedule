@@ -831,6 +831,7 @@ function personalschedule_send_notification_message(
     $message->smallmessage = '';
     $message->contexturl = $contexturl;
     $message->contexturlname = $contexturlname;
+
     return message_send($message);
 }
 

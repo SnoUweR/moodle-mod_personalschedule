@@ -75,22 +75,31 @@ $capabilities = array(
     // Receive a message with some advice to fill properties to created module.
     'mod/personalschedule:emailcoursemodulecreated' => array(
         'captype' => 'read',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array()
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
     ),
 
     // Receive a notification from a course's user who need help.
     'mod/personalschedule:emailusersentnotificationtoadmin' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array()
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
     ),
 
     // Receive a reminder when user hasn't visited Moodle for a long time.
     'mod/personalschedule:longofflinereminder' => array(
         'captype' => 'read',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array()
+        'contextlevel' => CONTEXT_USER,
+        'archetypes' => array(
+            'student' => CAP_ALLOW,
+        )
     ),
 );
 

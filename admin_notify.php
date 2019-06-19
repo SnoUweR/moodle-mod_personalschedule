@@ -60,8 +60,11 @@ if ($personalschedulealreadydone) {
     $issubmit = optional_param("submit", 0, PARAM_BOOL);
     if ($issubmit) {
         $contextmodule = context_module::instance($cm->id);
-        $adminids = get_users_by_capability($contextmodule, 'moodle/course:update', 'u.id');
-        if (count($adminids) == 0) {
+        $contextcourse = context_course::instance($course->id);
+        $teachersids = get_users_by_capability($contextmodule,
+            'mod/personalschedule:emailusersentnotificationtoadmin');
+
+        if (count($teachersids) == 0) {
             notice(get_string('adminnotify_error', 'personalschedule'), "$CFG->wwwroot/my");
         } else {
             $subject = get_string('adminnotifyemail_title', 'personalschedule', $course->shortname);
@@ -77,9 +80,10 @@ if ($personalschedulealreadydone) {
             );
 
             // For now, it's sending message only for the first admin of the course.
-            $receiveruserid = reset($adminids)->id;
+            $receiveruserid = reset($teachersids)->id;
+
             personalschedule_send_notification_message(
-                'coursemodulecreated', $course->id, $receiveruserid, $subject, $fullmessage,
+                'usersentnotificationtoadmin', $course->id, $receiveruserid, $subject, $fullmessage,
                 $courseurl, $course->shortname);
 
             notice(get_string('adminnotify_success', 'personalschedule'), "$CFG->wwwroot/my");

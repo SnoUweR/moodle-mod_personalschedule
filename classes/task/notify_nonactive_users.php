@@ -26,6 +26,8 @@ namespace mod_personalschedule\task;
 defined('MOODLE_INTERNAL') || die;
 
 use coding_exception;
+use context_course;
+use context_module;
 use core_user;
 use mod_personalschedule_config;
 
@@ -83,6 +85,10 @@ class notify_nonactive_users extends \core\task\scheduled_task {
      */
     private static function send_notification_message($courseid, $receiveruserid, $receiverfirstname,
         $skippeddays) {
+
+        if (!has_capability('mod/personalschedule:longofflinereminder', context_course::instance($courseid))) {
+            return false;
+        }
 
         $supportuser = core_user::get_support_user();
 

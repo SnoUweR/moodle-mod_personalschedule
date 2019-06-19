@@ -63,6 +63,11 @@ $string['personalschedule:addinstance'] = 'Add instance of Personalized Schedule
 $string['personalschedule:download'] = 'Download personalized schedules';
 $string['personalschedule:participate'] = 'Fill and submit personalized schedule';
 $string['personalschedule:readresponses'] = 'See personalized schedules of other users';
+
+$string['personalschedule:emailcoursemodulecreated'] = 'TODO';
+$string['personalschedule:emailusersentnotificationtoadmin'] = 'TODO';
+$string['personalschedule:longofflinereminder'] = 'TODO';
+
 $string['personalschedulesaved'] = 'Personalized schedule was saved';
 $string['personalscheduletype_link'] = 'mod/personalschedule/mod';
 $string['thanksforanswers'] = 'Your personalized schedule has been saved successfully, {$a}. When you click on "Continue", you will be transferred to your personal account, where personalized learning elements will be displayed.';
