@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2019061904; // The current module version.
+$plugin->version   = 2019062001; // The current module version.
 $plugin->requires  = 2017051500; // This is the release version for Moodle 3.3+
 $plugin->component = 'mod_personalschedule'; // Full name of the plugin (used for diagnostics).
 $plugin->cron      = 0;

@@ -23,6 +23,7 @@
  */
 
 use mod_personalschedule\items\proposed_activity_object;
+use mod_personalschedule\items\proposed_object;
 use mod_personalschedule\items\proposed_relax_object;
 use mod_personalschedule\items\user_view_info;
 
@@ -116,13 +117,21 @@ class mod_personalschedule_proposer_ui {
      * @param int $curtime Current UNIX time. If null, then the function will call time() manually.
      * @param int $dayidx Current day index. If null, then will be set from $curtime info.
      * @param int $periodidx Current period index. If null, then will be set from $curtime info.
+     * @param proposed_object[] $proposedobjects Proposed objects which will be represented in the table. If null, then
+     * the function will call the method for generating proposed objects for current period.
+     * @param bool $showactionscolumn If ture, then the table will contains column with status of the element. For example,
+     * 'Viewed' or 'Not viewed'. In addition, will mark skipped (by time) elements with red color, and green, if the element
+     * already viewed. Button 'Notify admin' will be not visible if this parameter set to false.
+     * @param bool $showcoursename If this parameter set to true, then above the table there will be combined title with the
+     * fullname of the course.
      * @return string HTML with a table with proposed elements.
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
     public static function get_proposed_table($course, $userid, $personalschedulecm,
-        $curtime = null, $dayidx = null, $periodidx = null) {
+        $curtime = null, $dayidx = null, $periodidx = null, $proposedobjects = null, $showactionscolumn = true,
+        $showcoursename = true) {
 
         global $CFG, $OUTPUT, $USER;
 
@@ -145,8 +154,11 @@ class mod_personalschedule_proposer_ui {
                     get_string('proposes_tablehead_3', 'personalschedule'),
                     array("title" => get_string('proposes_tablehead_3_help', 'personalschedule'))
                 ),
-                get_string('proposes_tablehead_4', 'personalschedule')
             );
+
+        if ($showactionscolumn) {
+            $tablecourseelements->head[] = get_string('proposes_tablehead_4', 'personalschedule');
+        }
 
         $tablecourseelements->data = array();
         $schedulealreadysubmitted = personalschedule_does_schedule_already_submitted(
@@ -171,17 +183,19 @@ class mod_personalschedule_proposer_ui {
                 $periodidx = mod_personalschedule_proposer::personal_items_get_period_idx($curtime);
             }
 
-            $weekidx =
-                self::personalschedule_get_week_idx($curtime, $userid,
-                    $personalschedulecm->instance);
+            if ($proposedobjects == null) {
+                $weekidx =
+                    mod_personalschedule_proposer::get_week_idx($curtime, $userid,
+                        $personalschedulecm->instance);
 
-            $personalitems = mod_personalschedule_proposer::personal_get_items($personalschedulecm->instance,
-                $userid, $course->id, $dayidx, $periodidx, $weekidx, $useractionsinfo);
+                $proposedobjects = mod_personalschedule_proposer::personal_get_items($personalschedulecm->instance,
+                    $userid, $course->id, $dayidx, $periodidx, $weekidx, $useractionsinfo);
+            }
 
             $alreadyviewedelementscount = 0;
             $alreadyaddedelementstodata = 0;
 
-            foreach ($personalitems as $personalitem) {
+            foreach ($proposedobjects as $personalitem) {
                 /** @var html_table_cell[] $tablerowdata */
                 $tablerowdata = array();
 
@@ -190,15 +204,15 @@ class mod_personalschedule_proposer_ui {
                     $alreadyviewedelementscount++;
                 } else if ($personalitem instanceof proposed_activity_object) {
                     list($alreadyviewedelementscount, $tablerowdata) = self::get_activity_rowdata($dayidx, $periodidx,
-                        $personalitem, $useractionsinfo, $alreadyviewedelementscount);
+                        $personalitem, $useractionsinfo, $alreadyviewedelementscount, $showactionscolumn);
                 }
 
                 $tablecourseelements->data[$alreadyaddedelementstodata++] = $tablerowdata;
             }
 
-            if (!empty($personalitems)) {
-                $allelementsviewed = $alreadyviewedelementscount == count($personalitems);
-                if ($allelementsviewed) {
+            if (!empty($proposedobjects)) {
+                $allelementsviewed = $alreadyviewedelementscount == count($proposedobjects);
+                if ($allelementsviewed && $showactionscolumn) {
                     $cell1 = new html_table_cell();
                     $cell1->text = get_string('proposes_allcompleted', 'personalschedule');
                     $cell1->colspan = count($tablecourseelements->head);
@@ -219,9 +233,9 @@ class mod_personalschedule_proposer_ui {
             $tablecourseelements->data[] = array($cell1);
         }
 
-        $resulthtml = self::table_to_html($tablecourseelements, $coursenamehtml);
+        $resulthtml = self::table_to_html($tablecourseelements, $showcoursename ? $coursenamehtml : '');
 
-        if ($schedulealreadysubmitted) {
+        if ($schedulealreadysubmitted && $showactionscolumn) {
             $url = new moodle_url(
                 "$CFG->wwwroot/mod/personalschedule/admin_notify.php", array('id' => $personalschedulecm->id));
             $button = $OUTPUT->single_button($url,
@@ -516,6 +530,7 @@ class mod_personalschedule_proposer_ui {
      * @param proposed_activity_object $personalitem
      * @param user_view_info[] $useractionsinfo
      * @param int $alreadyviewedelementscount
+     * @param bool $showactionscolumn
      * @return array
      * @throws coding_exception
      */
@@ -524,34 +539,47 @@ class mod_personalschedule_proposer_ui {
         $periodidx,
         $personalitem,
         array $useractionsinfo,
-        $alreadyviewedelementscount
+        $alreadyviewedelementscount,
+        $showactionscolumn
     ) {
         global $CFG;
 
         $moduleiconhtml = html_writer::empty_tag('img',
             array('src' => $personalitem->activity->get_icon_url()));
 
-        $actionsstatus =
-            mod_personalschedule_proposer::get_proposed_element_actions_status($useractionsinfo,
-                $personalitem);
-
         $allrowcellscssclass = "";
 
-        $isproposedelementskipped = false;
-        if ($actionsstatus) {
-            $actionsstatuscssclass = "element-status-viewed";
-            $alreadyviewedelementscount++;
-            $allrowcellscssclass = $actionsstatuscssclass;
-        } else {
-            $isproposedelementskipped =
-                self::is_proposed_element_skipped_by_time(
-                    $personalitem, $dayidx, $periodidx);
+        if ($showactionscolumn) {
+            $actionsstatus =
+                mod_personalschedule_proposer::get_proposed_element_actions_status($useractionsinfo,
+                    $personalitem);
 
-            if ($isproposedelementskipped) {
-                $elementbeginperiodcssclass = "element-period-skipped";
-                $allrowcellscssclass = $elementbeginperiodcssclass;
+            $actionsstatuslocalizedtext =
+                self::get_proposed_element_actions_status_localized($actionsstatus);
+
+            $thirdcell = new html_table_cell(
+                html_writer::span($actionsstatuslocalizedtext)
+            );
+
+            $isproposedelementskipped = false;
+            if ($actionsstatus) {
+                $actionsstatuscssclass = "element-status-viewed";
+                $alreadyviewedelementscount++;
+                $allrowcellscssclass = $actionsstatuscssclass;
+            } else {
+                $isproposedelementskipped =
+                    self::is_proposed_element_skipped_by_time(
+                        $personalitem, $dayidx, $periodidx);
+
+                if ($isproposedelementskipped) {
+                    $elementbeginperiodcssclass = "element-period-skipped";
+                    $allrowcellscssclass = $elementbeginperiodcssclass;
+                }
             }
+        } else {
+            $isproposedelementskipped = false;
         }
+
 
         $activitynamehtml = sprintf(
             "<a href=\"$CFG->wwwroot/mod/%s/view.php?id=%s\">%s %s (%s)</a>",
@@ -568,58 +596,22 @@ class mod_personalschedule_proposer_ui {
                 $personalitem->modifieddurationsec)
         );
 
-        $actionsstatuslocalizedtext =
-            self::get_proposed_element_actions_status_localized($actionsstatus);
-
-        $thirdcell = new html_table_cell(
-            html_writer::span($actionsstatuslocalizedtext)
-        );
-
         /** @var html_table_cell[] $tablerowdata */
         $tablerowdata = array();
         $tablerowdata[] = $zerothcell;
         $tablerowdata[] = $firstcell;
         $tablerowdata[] = $secondcell;
-        $tablerowdata[] = $thirdcell;
+
+        if (isset($thirdcell)) {
+            $tablerowdata[] = $thirdcell;
+        }
 
         foreach ($tablerowdata as $cell) {
             $cell->attributes["class"] = $allrowcellscssclass;
         }
+
         return array($alreadyviewedelementscount, $tablerowdata);
     }
-
-
-    /**
-     * Returns time of first schedule creation for the user and personalschedule module instance id
-     * @param $userid int
-     * @param $personalscheduleid int
-     * @return int
-     * @throws dml_exception
-     */
-    private static function personalschedule_get_schedule_create_time($userid, $personalscheduleid) {
-        global $DB;
-        $data = $DB->get_record(
-            "personalschedule_usrattempts",
-            array("userid" => $userid, "personalschedule" => $personalscheduleid), "timecreated");
-        return $data == false ? 0 : $data->timecreated;
-    }
-
-    /**
-     * Returns how many weeks have passed since user's schedule was created.
-     * The value starts from 1. For example, if the current week is the week, when the schedule was created, then this
-     * function will return 1 (not 0).
-     * @param int $curtime Current UNIX time.
-     * @param int $userid User ID.
-     * @param int $personalscheduleid Personalization module instance ID.
-     * @return int Number of weeks, that have passed since user's schedule was created.
-     * @throws dml_exception
-     */
-    private static function personalschedule_get_week_idx($curtime, $userid, $personalscheduleid) {
-        $schedulecreatedtime = self::personalschedule_get_schedule_create_time($userid, $personalscheduleid);
-        $weekscount = (int)ceil(abs($schedulecreatedtime - $curtime) / 60 / 60 / 24 / 7);
-        return $weekscount;
-    }
-
 
     /**
      * Splits duration in seconds by time components.

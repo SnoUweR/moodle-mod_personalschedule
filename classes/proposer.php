@@ -162,6 +162,7 @@ class mod_personalschedule_proposer {
         $categoriesobjects = array();
 
         $cmprops = personalschedule_get_course_modules_props($personalscheduleid);
+        // Sort activities by weight in ascending order, because the greater the weight, the lower the priority.
         usort($uncompletedactivities, function($a, $b) use ($cmprops) {
 
             if (!key_exists($a->id, $cmprops)) {
@@ -179,13 +180,10 @@ class mod_personalschedule_proposer {
                 return 0;
             }
 
-            return ($propsa->weight > $propsb->weight) ? 1 : -1;
+            return ($propsa->weight > $propsb->weight) ? -1 : 1;
         });
 
         foreach ($uncompletedactivities as $activity) {
-
-            // Gets properties of the activity.
-
             if (!key_exists($activity->id, $cmprops)) {
                 continue;
             }
@@ -197,6 +195,10 @@ class mod_personalschedule_proposer {
                 continue;
             }
             if ($props->is_ignored === 1) {
+                continue;
+            }
+
+            if (!$activity->uservisible) {
                 continue;
             }
 
@@ -677,6 +679,56 @@ class mod_personalschedule_proposer {
     }
 
     /**
+     * @param int $personalscheduleid Personalization module instance ID.
+     * @param int $userid User ID.
+     * @param int $courseid Course ID.
+     * @return proposed_object[][] Generated elements.
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function personal_get_total_items($personalscheduleid, $userid, $courseid) {
+        $userage = personalschedule_get_user_age($personalscheduleid, $userid);
+
+        $useractionsinfo = self::get_user_views_info($userid, $courseid);
+
+        $categoriesobjects = self::get_categories($personalscheduleid,
+            $userid, $courseid, $userage, $useractionsinfo);
+
+        $schedule = personalschedule_get_user_schedule($personalscheduleid, $userid);
+
+        $curtime = self::get_user_current_timestamp();
+        $periodidx = self::personal_items_get_period_idx($curtime);
+        $dayidx = self::personal_items_get_day_idx($curtime);
+        $weekidx = self::get_week_idx($curtime, $userid, $personalscheduleid);
+
+        /** @var proposed_object[][] $totalproposedactivities */
+        $totalproposedactivities = array();
+
+        while (count($categoriesobjects) > 0) {
+            $dayinfo = self::get_today_groupped_free_periods($periodidx, $dayidx, $weekidx, $schedule);
+            $proposedactivities = self::generate_proposed_elements($dayinfo, $categoriesobjects);
+            $totalproposedactivities[] = $proposedactivities;
+
+            foreach ($proposedactivities as $proposedactivity) {
+                if ($proposedactivity instanceof proposed_activity_object) {
+                    foreach ($categoriesobjects as $key => $categoryobject) {
+                        $removed = $categoryobject->remove_learning_object($proposedactivity->activity);
+                        if ($removed) {
+                            if ($categoryobject->get_total_objects() == 0) {
+                                unset($categoriesobjects[$key]);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            self::increment_period_idx($periodidx, $dayidx);
+        }
+
+        return $totalproposedactivities;
+    }
+
+    /**
      * Generates proposed learning elements for the
      * learner. If the proposed elements already were generated (for the current time info), then
      * returns cached items from the database.
@@ -1005,5 +1057,36 @@ GROUP BY l.contextinstanceid, m.name, cm.instance";
             $attempts = 1;
         }
         return new user_practice_info($id, $attempts, $attempts > 0, false);
+    }
+
+    /**
+     * Returns time of first schedule creation for the user and personalschedule module instance id
+     * @param $userid int
+     * @param $personalscheduleid int
+     * @return int
+     * @throws dml_exception
+     */
+    private static function get_schedule_create_time($userid, $personalscheduleid) {
+        global $DB;
+        $data = $DB->get_record(
+            "personalschedule_usrattempts",
+            array("userid" => $userid, "personalschedule" => $personalscheduleid), "timecreated");
+        return $data == false ? 0 : $data->timecreated;
+    }
+
+    /**
+     * Returns how many weeks have passed since user's schedule was created.
+     * The value starts from 1. For example, if the current week is the week, when the schedule was created, then this
+     * function will return 1 (not 0).
+     * @param int $curtime Current UNIX time.
+     * @param int $userid User ID.
+     * @param int $personalscheduleid Personalization module instance ID.
+     * @return int Number of weeks, that have passed since user's schedule was created.
+     * @throws dml_exception
+     */
+    public static function get_week_idx($curtime, $userid, $personalscheduleid) {
+        $schedulecreatedtime = self::get_schedule_create_time($userid, $personalscheduleid);
+        $weekscount = (int)ceil(abs($schedulecreatedtime - $curtime) / 60 / 60 / 24 / 7);
+        return $weekscount;
     }
 }

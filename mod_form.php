@@ -122,9 +122,21 @@ class mod_personalschedule_mod_form extends moodleform_mod {
             $this->cachedcoursemodules = personalschedule_get_course_activities($COURSE);
         }
 
+        /** @var int[] $sectiontocategory */
+        $sectiontocategory = array();
+
+        $totalcategories = 1;
+
         foreach ($this->cachedcoursemodules as $coursemodule) {
+
+            if (!key_exists($coursemodule->section, $sectiontocategory)) {
+                $sectiontocategory[$coursemodule->section] = $totalcategories++;
+            }
+
+            $category = $sectiontocategory[$coursemodule->section];
+
             $toform[mod_personalschedule_config::CMPROPKEYCATEGORY . mod_personalschedule_config::SEPARATORHIDDENINPUT .
-            $coursemodule->id] = $coursemodule->section;
+            $coursemodule->id] = $category;
             $toform[mod_personalschedule_config::CMPROPKEYWEIGHT . mod_personalschedule_config::SEPARATORHIDDENINPUT .
             $coursemodule->id] = 1;
             $toform[mod_personalschedule_config::CMPROPKEYDURATION . mod_personalschedule_config::SEPARATORHIDDENINPUT .

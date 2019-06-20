@@ -64,9 +64,10 @@ $string['personalschedule:download'] = 'Скачать персонализир�
 $string['personalschedule:participate'] = 'Заполнение персонализированного расписания';
 $string['personalschedule:readresponses'] = 'Просмотр расписаний других пользователей';
 
-$string['personalschedule:emailcoursemodulecreated'] = 'TODO';
-$string['personalschedule:emailusersentnotificationtoadmin'] = 'TODO';
-$string['personalschedule:longofflinereminder'] = 'TODO';
+$string['personalschedule:emailcoursemodulecreated'] = 'Уведомляет администратора курса о том, что в курс был добавлен новый учебный элемент, и поэтому необходимо обновить метаданные модуля персонализированного расписания, чтобы новый элемент учитывался при подборе.';
+$string['personalschedule:emailusersentnotificationtoadmin'] = 'Позволяет администратору получать сообщения от студентов о том, что у них возникли некие проблемы при прохождении курса.';
+$string['personalschedule:longofflinereminder'] = 'Уведомляет пользователя курса о том, что он уже несколько дней не посещал курс.';
+$string['personalschedule:othernotifications'] = 'Отправляет пользователю курса предлагаемый маршрут прохождения курса после каждого изменения расписания.';
 
 $string['personalschedulesaved'] = 'Персонализированное расписание сохранено';
 $string['personalscheduletype_link'] = 'mod/personalschedule/mod';
@@ -79,11 +80,11 @@ $string['personalschedulealreadydone'] = 'Вы уже составили Ваш�
 $string['mod_form_header_connection_elements'] = 'Связь с другими элементами курса';
 $string['mod_form_header_connection_elements_duration'] = 'Предполагаемая продолжительность';
 $string['mod_form_header_connection_elements_category'] = 'Категория';
-$string['mod_form_header_connection_elements_category_help'] = 'ыфвыфв';
+$string['mod_form_header_connection_elements_category_help'] = 'TODO'; // TODO: Add description.
 $string['mod_form_header_connection_elements_weight'] = 'Весовой коэффициент';
-$string['mod_form_header_connection_elements_weight_help'] = 'ыфвыфв';
+$string['mod_form_header_connection_elements_weight_help'] = 'TODO'; // TODO: Add description.
 $string['mod_form_header_connection_elements_is_ignored'] = 'Не предлагать';
-$string['mod_form_header_connection_elements_is_ignored_help'] = 'ыфвыфв';
+$string['mod_form_header_connection_elements_is_ignored_help'] = 'TODO'; // TODO: Add description.
 
 $string["view_label_age"] = 'Ваш возраст: ';
 $string['totalcourseduration_const'] = 'Среднее время прохождения курса: ';
@@ -198,3 +199,6 @@ $string['notifynoactiveusers_title'] = 'Напоминание о Вашем р�
 $string['notifynoactiveusers_message'] = 'Здравствуйте, %s.<br>Мы заметили, что Вы не посещали сайт дистанционного образования уже %d дня.<br>Если Вы столкнулись с проблемами при прохождении каких-либо тем, то Вы можете отправить уведомление администратору на странице с расписанием, либо поменять расписание в целом.<br> ';
 
 $string['save_willupdatenextday'] = 'Если Вам уже были предложены учебные элементы, то они будут обновлены на следующий день.';
+
+$string['fullcourseschedule_subject'] = 'Общее расписание курса';
+$string['fullcourseschedule_day'] = 'День {$a}';

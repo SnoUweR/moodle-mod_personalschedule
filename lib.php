@@ -780,6 +780,28 @@ function personalschedule_save_answers($personalschedule, $answersrawdata, $cour
     return true;
 }
 
+function personalschedule_send_total_course_schedule($course, $personalscheduleid, $cm, $userid) {
+    if (has_capability('mod/personalschedule:othernotifications', context_module::instance($cm->id), $userid)) {
+        $name = 'othernotifications';
+        $subject = get_string('fullcourseschedule_subject', 'mod_personalschedule');
+
+        $totalproposedactivities = mod_personalschedule_proposer::personal_get_total_items(
+            $personalscheduleid, $userid, $course->id);
+
+        $htmlcontent = '';
+        $dayindex = 1;
+        foreach ($totalproposedactivities as $proposedactivities) {
+            $htmlcontent .= get_string('fullcourseschedule_day', 'mod_personalschedule', $dayindex);
+            $htmlcontent .= sprintf("%s<hr>", mod_personalschedule_proposer_ui::get_proposed_table(
+                $course, $userid, $cm, null, null, null,
+                $proposedactivities, false, false));
+            $dayindex++;
+        }
+
+        personalschedule_send_notification_message($name, $course->id, $userid, $subject, $htmlcontent);
+    }
+}
+
 /**
  * Obtains the completion state for this personalschedule.
  * Called automatically by Moodle.
@@ -921,10 +943,11 @@ function personalschedule_get_course_activities($course) {
  * @throws dml_exception
  */
 function personalschedule_get_course_modules_props($personalscheduleid) {
-    if (!isset($personalscheduleid) || !is_int($personalscheduleid)) {
+    // Additional checks in the cases when we're calling this function from the module adding page, so
+    // there is no personalscheduleid yet, but we should return something.
+    if (!isset($personalscheduleid) || !is_numeric($personalscheduleid)) {
         return array();
     }
-
     global $DB;
     return $DB->get_records("personalschedule_cm_props", array("personalschedule" => $personalscheduleid), '',
         'cm, duration, category, weight, is_ignored');

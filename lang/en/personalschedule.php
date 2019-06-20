@@ -64,9 +64,10 @@ $string['personalschedule:download'] = 'Download personalized schedules';
 $string['personalschedule:participate'] = 'Fill and submit personalized schedule';
 $string['personalschedule:readresponses'] = 'See personalized schedules of other users';
 
-$string['personalschedule:emailcoursemodulecreated'] = 'TODO';
-$string['personalschedule:emailusersentnotificationtoadmin'] = 'TODO';
-$string['personalschedule:longofflinereminder'] = 'TODO';
+$string['personalschedule:emailcoursemodulecreated'] = 'Notifies the course administrators that a new learning element has been added to the course, and therefore it is necessary to update the course elements properties in the personal schedule module.';
+$string['personalschedule:emailusersentnotificationtoadmin'] = 'Allows the administrators to receive messages from students that they have some problems while completing the course.';
+$string['personalschedule:longofflinereminder'] = 'Notifies the course user that he has not attended the course for several days.';
+$string['personalschedule:othernotifications'] = 'Sends the learning path of the course user after each schedule change.';
 
 $string['personalschedulesaved'] = 'Personalized schedule was saved';
 $string['personalscheduletype_link'] = 'mod/personalschedule/mod';
@@ -79,11 +80,11 @@ $string['personalschedulealreadydone'] = 'You have already submitted schedule';
 $string['mod_form_header_connection_elements'] = 'Course elements connections';
 $string['mod_form_header_connection_elements_duration'] = 'Estimated duration';
 $string['mod_form_header_connection_elements_category'] = 'Category';
-$string['mod_form_header_connection_elements_category_help'] = 'ыфвыфв';
+$string['mod_form_header_connection_elements_category_help'] = 'TODO'; // TODO: Add description.
 $string['mod_form_header_connection_elements_weight'] = 'Weight coefficient';
-$string['mod_form_header_connection_elements_weight_help'] = 'ыфвыфв';
+$string['mod_form_header_connection_elements_weight_help'] = 'TODO'; // TODO: Add description.
 $string['mod_form_header_connection_elements_is_ignored'] = 'Should be ignored';
-$string['mod_form_header_connection_elements_is_ignored_help'] = 'ыфвыфв';
+$string['mod_form_header_connection_elements_is_ignored_help'] = 'TODO'; // TODO: Add description.
 
 $string["view_label_age"] = 'Your age (5-105): ';
 $string['totalcourseduration_const'] = 'Average course duration: ';
@@ -198,3 +199,6 @@ $string['notifynoactiveusers_title'] = 'Schedule Reminder';
 $string['notifynoactiveusers_message'] = 'Hello, %s.<br>We noticed that you have not visited the e-learning site for %d days.<br>If you encounter problems while going through any learning elements, you can send a notification to the administrator on the page with the schedule, or change the schedule as well.<br> ';
 
 $string['save_willupdatenextday'] = 'Already proposed learning elements will be updated on the next day.';
+
+$string['fullcourseschedule_subject'] = 'Total Course Learning Path';
+$string['fullcourseschedule_day'] = 'Day {$a}';

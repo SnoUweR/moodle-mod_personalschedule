@@ -101,6 +101,15 @@ $capabilities = array(
             'student' => CAP_ALLOW,
         )
     ),
+
+    //Receive a message with useful information. For example, schedule for the total course.
+    'mod/personalschedule:othernotifications' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'student' => CAP_ALLOW,
+        )
+    ),
 );
 
 

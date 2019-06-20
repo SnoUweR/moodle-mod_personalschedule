@@ -30,6 +30,5 @@ function xmldb_personalschedule_upgrade($oldversion) {
 
     // Automatically generated Moodle v3.5.0 release upgrade line.
     // Put any upgrade step following this.
-
     return true;
 }

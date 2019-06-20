@@ -63,6 +63,7 @@ if (personalschedule_does_schedule_already_submitted($personalschedule->id, $USE
 }
 
 personalschedule_save_answers($personalschedule, $formdata, $course, $context);
+personalschedule_send_total_course_schedule($course, $personalschedule->id, $cm, $USER->id);
 
 notice(get_string("thanksforanswers", "personalschedule", $USER->firstname), "$CFG->wwwroot/my");
 

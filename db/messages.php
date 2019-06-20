@@ -33,4 +33,7 @@ $messageproviders = array (
     'longofflinereminder' => array (
         'capability'  => 'mod/personalschedule:longofflinereminder'
     ),
+    'othernotifications' => array (
+        'capability'  => 'mod/personalschedule:othernotifications'
+    ),
 );

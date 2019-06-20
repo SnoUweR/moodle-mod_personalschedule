@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_personalschedule\items;
 
+use cm_info;
+
 defined('MOODLE_INTERNAL') || die;
 
 class category_object
@@ -41,8 +43,16 @@ class category_object
 
 
     /**
-     * @param $learningobject category_learning_object
-     * @param $islecture bool
+     * Returns total objects in this category.
+     * @return int Count of total objects in this category.
+     */
+    public function get_total_objects() {
+        return count($this->leftlectures) + count($this->leftpractices);
+    }
+
+    /**
+     * @param category_learning_object $learningobject
+     * @param bool $islecture
      */
     public function add_learning_object($learningobject, $islecture) {
         if ($islecture) {
@@ -55,6 +65,29 @@ class category_object
         $this->modifieddurationsec += $learningobject->modifieddurationsec;
     }
 
+    /**
+     * Tries to remove a learning object with specific activity from this category.
+     * Returns true if the object found and removed. False if the object not found.
+     * @param cm_info $activity Moodle activity that need to be removed from this category.
+     * @return bool True if the object found and removed. False if the object not found.
+     */
+    public function remove_learning_object($activity) {
+        foreach ($this->leftlectures as $key => $lecture) {
+            if ($lecture->activity === $activity) {
+                unset($this->leftlectures[$key]);
+                return true;
+            }
+        }
+
+        foreach ($this->leftpractices as $key => $practice) {
+            if ($practice->activity === $activity) {
+                unset($this->leftpractices[$key]);
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /**
      * @return float|int
