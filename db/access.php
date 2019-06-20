@@ -102,7 +102,7 @@ $capabilities = array(
         )
     ),
 
-    //Receive a message with useful information. For example, schedule for the total course.
+    // Receive a message with useful information. For example, schedule for the total course.
     'mod/personalschedule:othernotifications' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,

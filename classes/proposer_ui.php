@@ -580,7 +580,6 @@ class mod_personalschedule_proposer_ui {
             $isproposedelementskipped = false;
         }
 
-
         $activitynamehtml = sprintf(
             "<a href=\"$CFG->wwwroot/mod/%s/view.php?id=%s\">%s %s (%s)</a>",
             $personalitem->activity->modname, $personalitem->activity->id, $moduleiconhtml,
